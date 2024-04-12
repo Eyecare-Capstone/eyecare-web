@@ -1,7 +1,18 @@
-export default function ArticlesPage() {
-  return (
-    <div className="flex flex-col items-center justify-center w-full h-screen ">
-      <h1 className="text-2xl font-bold mt-3">Article Page</h1>
-    </div>
-  );
-}
+// // import { columns } from "";
+// import { DataTable } from "@/components/data-table";
+
+// async function getData(): {
+//   // Fetch data from your API here.
+//   // const baseUrl = process.env.BASE_URL;
+//   // const res = await fetch(`${baseUrl}/users`);
+//   // console.log(res);
+// };
+
+// export default async function ArticlePage() {
+//   // const data = await getData();
+//   return (
+//     <div className="container mx-auto py-3 h-screen ">
+//       <DataTable columns={columns} data={data} addLabel="Add User" />
+//     </div>
+//   );
+// }

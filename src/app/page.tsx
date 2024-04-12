@@ -8,6 +8,11 @@ export default function Home() {
       <Button>
         <Link href="/admin">Go to admin</Link>
       </Button>
+      <Button>
+        <Link href="/article">Go to Articles</Link>
+      </Button>
     </main>
+
+    // footer
   );
 }

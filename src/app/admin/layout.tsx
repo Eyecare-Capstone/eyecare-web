@@ -8,7 +8,7 @@ export default function AdminLayout({
   return (
     <body>
       <Sidebar />
-      <main className="ml-[300px]">{children}</main>
+      <main className="ml-[220px] h-screen">{children}</main>
     </body>
   );
 }

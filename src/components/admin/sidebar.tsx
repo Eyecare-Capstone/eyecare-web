@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export const Sidebar = () => {
   return (
-    <aside className="w-[270px] max-w-xs h-screen fixed left-0 top-0 z-40 border-r">
+    <aside className="w-[220px] max-w-xs h-screen fixed left-0 top-0 z-40 border-r">
       <div className="h-full px-3 py-4">
         <GiCyberEye className="ml-2" size={100} />
         <h3 className="mx-3 my-7 text-lg font-semibold text-foreground">
