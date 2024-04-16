@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 import {
@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Notification } from "../common/add-notification";
+import { MutateNotification } from "../common/mutate-notification";
 import { Spinner } from "../common/spinner";
+import { useEffect } from "react";
 
 const adminSchema = z.object({
   email: z.string().email({
@@ -26,15 +27,10 @@ const adminSchema = z.object({
   }),
 });
 
-export function EditForm({ data, id }: any) {
+export function EditForm({ id }: any) {
   const queryClient = useQueryClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  const form = useForm<z.infer<typeof adminSchema>>({
-    resolver: zodResolver(adminSchema),
-    defaultValues: {
-      email: data?.email,
-    },
-  });
+
   const mutation = useMutation({
     mutationKey: ["admin", id],
     mutationFn: (updatedAdmin: any) => {
@@ -45,12 +41,35 @@ export function EditForm({ data, id }: any) {
     },
   });
 
+  const { data, isLoading, isError } = useQuery<any>({
+    queryKey: ["admin", id],
+    queryFn: async () => {
+      const res = await axios
+        .get(`${baseUrl}/admins/${id}`)
+        .then((res) => res.data);
+      console.log(res.data);
+      return res.data;
+    },
+  });
+
+  const form = useForm<z.infer<typeof adminSchema>>({
+    resolver: zodResolver(adminSchema),
+    defaultValues: {
+      email: data?.email,
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      form.reset({ email: data.email });
+    }
+  }, [data, form]);
+
   const onSubmit = async (values: any) => {
     try {
       const data = {
         email: values.email,
       };
-      console.log(data);
       await mutation.mutateAsync(data);
       form.reset();
     } catch (error) {
@@ -60,14 +79,20 @@ export function EditForm({ data, id }: any) {
 
   return (
     <Form {...form}>
+      {isLoading && <Spinner />}
+      {isError && (
+        <MutateNotification variant="danger">
+          Error getting this admin
+        </MutateNotification>
+      )}
       {mutation.isPending && <Spinner />}
       {mutation.isSuccess && (
-        <Notification type="edit">Admin updated successfully</Notification>
+        <MutateNotification>Admin updated successfully</MutateNotification>
       )}
       {mutation.isError && (
-        <Notification variant="danger" type="edit">
+        <MutateNotification variant="danger">
           Failed to update this admin
-        </Notification>
+        </MutateNotification>
       )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-6">
         <FormField

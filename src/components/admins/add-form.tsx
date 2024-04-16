@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Notification } from "../common/add-notification";
+import { AddNotification } from "../common/add-notification";
 import { Spinner } from "../common/spinner";
 
 const adminSchema = z.object({
@@ -60,10 +60,12 @@ export function AddForm() {
     <Form {...form}>
       {mutation.isPending && <Spinner />}
       {mutation.isSuccess && (
-        <Notification>New admin successfully added</Notification>
+        <AddNotification>New admin successfully added</AddNotification>
       )}
       {mutation.isError && (
-        <Notification variant="danger">Failed to add new admin</Notification>
+        <AddNotification variant="danger">
+          Failed to add new admin
+        </AddNotification>
       )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-6">
         <FormField

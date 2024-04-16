@@ -1,5 +1,6 @@
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -7,15 +8,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DialogClose } from "@/components/ui/dialog";
-import { Button } from "../ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { AlertDialogAction } from "@radix-ui/react-alert-dialog";
 
-export function MutateNotification({
-  children,
-  variant = "default",
-  type = "dialog",
-}: any) {
+export function MutateNotification({ children, variant = "default" }: any) {
   return (
     <AlertDialog open={true}>
       <AlertDialogContent className="w-80">
@@ -34,11 +29,13 @@ export function MutateNotification({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mx-auto mt-3">
-          <DialogClose>
-            <DropdownMenuItem>
-              <Button variant="outline">ok</Button>
-            </DropdownMenuItem>
-          </DialogClose>
+          <AlertDialogAction>
+            <DialogClose>
+              <DropdownMenuItem className="focus:bg-blue-500 bg-blue-500">
+                ok
+              </DropdownMenuItem>
+            </DialogClose>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

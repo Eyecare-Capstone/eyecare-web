@@ -3,7 +3,7 @@ import { MdOutlineDeleteForever } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Spinner } from "../common/spinner";
-import { Notification } from "../common/add-notification";
+import { MutateNotification } from "../common/mutate-notification";
 import {
   Dialog,
   DialogClose,
@@ -14,7 +14,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { MutateNotification } from "../common/mutate-notification";
+
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function DeleteDialog({ id }: any) {
   const queryClient = useQueryClient();

@@ -8,9 +8,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DialogClose } from "@/components/ui/dialog";
-import { Button } from "../ui/button";
 
-export function Notification({ children, variant = "default" }: any) {
+export function AddNotification({ children, variant = "default" }: any) {
   return (
     <AlertDialog open={true}>
       <AlertDialogContent className="w-80">
