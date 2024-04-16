@@ -3,32 +3,31 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { IoMdAdd } from "react-icons/io";
-import { DoctorForm } from "./add-doctor-form";
+import { AddForm } from "./add-form";
 
-export function AddDoctorDialog() {
+export function AddDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="default" size="sm" className="flex gap-1 px-4 ml-2">
           <IoMdAdd className="w-4 h-4 text-white " />
-          <span className="font-medium text-white">Add doctor</span>
+          <span className="font-medium text-white">Add admin</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[825px]">
+      <DialogContent className=" sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add new doctor to database</DialogTitle>
+          <DialogTitle>Add admin</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when youre done.
+            Create new admin to your database. Click submit when you are done.
           </DialogDescription>
         </DialogHeader>
-        <DoctorForm />
+        <AddForm />
       </DialogContent>
     </Dialog>
   );

@@ -152,7 +152,6 @@ export const columns: ColumnDef<Doctor>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
               <MdMoreHoriz className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -167,11 +166,11 @@ export const columns: ColumnDef<Doctor>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem className="gap-1">
               <CiEdit className="text-ring text-xl " />
-              <span className="text-xs">Edit user</span>
+              <span className="text-xs">Edit doctor</span>
             </DropdownMenuItem>
             <DropdownMenuItem className="gap-1">
               <MdOutlineDeleteForever className="text-red-500 text-xl " />
-              <span className="text-xs">Delete user</span>
+              <span className="text-xs">Delete doctor</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

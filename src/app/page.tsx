@@ -6,7 +6,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <h1>Hello World</h1>
       <Button>
-        <Link href="/admin">Go to admin</Link>
+        <Link href="/studio">Go to admin</Link>
       </Button>
       <Button>
         <Link href="/article">Go to Articles</Link>

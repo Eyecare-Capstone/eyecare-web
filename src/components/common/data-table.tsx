@@ -23,23 +23,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-import { IoMdAdd } from "react-icons/io";
 import { GrPrevious } from "react-icons/gr";
 import { GrNext } from "react-icons/gr";
 
-import { useState } from "react";
-import Link from "next/link";
+import { ReactNode, useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  addLabel: string;
+  // addLabel: string;
+  addDialog: ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  addLabel,
+  addDialog,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filterState, setFilterState] = useState<string>("");
@@ -75,10 +74,7 @@ export function DataTable<TData, TValue>({
         </div>
 
         {/* add button */}
-        <Button variant="default" size="sm" className="flex gap-1 px-4 ml-2">
-          <IoMdAdd className="w-4 h-4 text-white " />
-          <span className="font-medium text-white">{addLabel}</span>
-        </Button>
+        {addDialog}
 
         {/* Pagination */}
         <div className="ml-auto flex items-center justify-end gap-2">
