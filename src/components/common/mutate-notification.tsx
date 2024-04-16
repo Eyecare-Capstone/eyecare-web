@@ -12,7 +12,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function MutateNotification({ children, variant = "default" }: any) {
   return (
-    <AlertDialog open={true}>
+    <AlertDialog defaultOpen={true}>
       <AlertDialogContent className="w-80">
         <AlertDialogHeader>
           {variant == "default" ? (
@@ -28,10 +28,10 @@ export function MutateNotification({ children, variant = "default" }: any) {
             {children}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="mx-auto mt-3">
-          <AlertDialogAction>
-            <DialogClose>
-              <DropdownMenuItem className="focus:bg-blue-500 bg-blue-500">
+        <AlertDialogFooter className="mx-auto mt-3 cursor-pointer">
+          <AlertDialogAction className="hover:bg-blue-500 bg-blue-500 cursor-pointer">
+            <DialogClose className="hover:bg-blue-500 bg-blue-500 cursor-pointer">
+              <DropdownMenuItem className="focus:bg-blue-500 cursor-pointer">
                 ok
               </DropdownMenuItem>
             </DialogClose>

@@ -21,9 +21,15 @@ import { MutateNotification } from "../common/mutate-notification";
 import { Spinner } from "../common/spinner";
 import { useEffect } from "react";
 
-const adminSchema = z.object({
+const userSchema = z.object({
+  username: z.string().min(2, {
+    message: "Required",
+  }),
   email: z.string().email({
     message: "Invalid email format. Please enter a valid email address.",
+  }),
+  avatar: z.string().url({
+    message: "Invalid url format. Please enter a valid avatar url.",
   }),
 });
 
@@ -32,35 +38,34 @@ export function EditForm({ id }: any) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const mutation = useMutation({
-    mutationKey: ["admin", id],
-    mutationFn: (updatedAdmin: any) => {
-      return axios.put(`${baseUrl}/admins/${id}`, updatedAdmin);
+    mutationKey: ["user", id],
+    mutationFn: (updatedUser: any) => {
+      return axios.put(`${baseUrl}/users/${id}`, updatedUser);
     },
     onSuccess: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["admin"] });
-      }, 1000);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
   const { data, isLoading, isError } = useQuery<any>({
-    queryKey: ["admin", id],
+    queryKey: ["user", id],
     queryFn: async () => {
       const res = await axios
-        .get(`${baseUrl}/admins/${id}`)
+        .get(`${baseUrl}/users/${id}`)
         .then((res) => res.data);
       console.log(res.data);
       return res.data;
     },
   });
 
-  const form = useForm<z.infer<typeof adminSchema>>({
-    resolver: zodResolver(adminSchema),
+  const form = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
+      username: data?.username,
       email: data?.email,
+      avatar: data?.avatar,
     },
   });
-
   useEffect(() => {
     if (data) {
       form.reset({ email: data.email });
@@ -70,7 +75,9 @@ export function EditForm({ id }: any) {
   const onSubmit = async (values: any) => {
     try {
       const data = {
+        username: values.username,
         email: values.email,
+        avatar: values.avatar,
       };
       await mutation.mutateAsync(data);
       form.reset();
@@ -84,31 +91,65 @@ export function EditForm({ id }: any) {
       {isLoading && <Spinner />}
       {isError && (
         <MutateNotification variant="danger">
-          Error getting this admin
+          Error getting this user
         </MutateNotification>
       )}
       {mutation.isPending && <Spinner />}
       {mutation.isSuccess && (
-        <MutateNotification>Admin updated successfully</MutateNotification>
+        <MutateNotification>User updated successfully</MutateNotification>
       )}
       {mutation.isError && (
         <MutateNotification variant="danger">
-          Failed to update this admin
+          Failed to update this user
         </MutateNotification>
       )}
       <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-6">
         <FormField
           control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User Email</FormLabel>
+              <FormControl>
+                <Input type="text" placeholder="Enter username..." {...field} />
+              </FormControl>
+              <FormDescription>
+                This is the user registered username.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Admin Email</FormLabel>
+              <FormLabel>User Email</FormLabel>
               <FormControl>
                 <Input type="email" placeholder="Enter email..." {...field} />
               </FormControl>
               <FormDescription>
-                This is the admin registered email.
+                This is the user registered email.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>User avatar</FormLabel>
+              <FormControl>
+                <Input
+                  type="url"
+                  placeholder="Enter avatar url..."
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>This is the user avatar url.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

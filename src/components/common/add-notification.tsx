@@ -28,8 +28,8 @@ export function AddNotification({ children, variant = "default" }: any) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mx-auto mt-3">
-          <AlertDialogAction>
-            <DialogClose>ok</DialogClose>
+          <AlertDialogAction asChild>
+            <DialogClose className="cursor-pointer">ok</DialogClose>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

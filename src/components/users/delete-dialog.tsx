@@ -21,12 +21,10 @@ export function DeleteDialog({ id }: any) {
 
   const mutation = useMutation({
     mutationFn: (id: any) => {
-      return axios.delete(`${baseUrl}/admins/${id as string}`);
+      return axios.delete(`${baseUrl}/users/${id as string}`);
     },
     onSuccess: () => {
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["admin"] });
-      }, 2000);
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 
@@ -42,21 +40,21 @@ export function DeleteDialog({ id }: any) {
     <Dialog>
       {mutation.isPending && <Spinner />}
       {mutation.isSuccess && (
-        <MutateNotification>Successfully delete this admin</MutateNotification>
+        <MutateNotification>Successfully delete this user</MutateNotification>
       )}
       {mutation.isError && (
-        <MutateNotification>Failed to add new admin</MutateNotification>
+        <MutateNotification>Failed to add new user</MutateNotification>
       )}
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <MdOutlineDeleteForever className="text-red-500 text-xl" />
-          <span className="text-xs">Delete admin</span>
+          <MdOutlineDeleteForever className="text-red-500 text-xl " />
+          <span className="text-xs">Delete user</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Are you absolutely sure you want to delete this admin?
+            Are you absolutely sure you want to delete this user?
           </DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete and
@@ -67,10 +65,7 @@ export function DeleteDialog({ id }: any) {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button
-            onClick={() => handleDelete(id)}
-            className="bg-red-500 hover:bg-red-500 cursor-pointer"
-          >
+          <Button onClick={() => handleDelete(id)} className="bg-red-500">
             Delete
           </Button>
         </DialogFooter>
