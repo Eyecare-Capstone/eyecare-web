@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { DeleteConfirmation } from "@/components/admins/delete-confirmation";
+import { DeleteDialog } from "@/components/admins/delete-dialog";
 import { EditDialog } from "@/components/admins/edit-dialog";
 
 export type Admin = {
@@ -42,7 +42,6 @@ export const columns: ColumnDef<Admin>[] = [
     id: "actions",
     cell: ({ row }) => {
       const admin = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +62,7 @@ export const columns: ColumnDef<Admin>[] = [
               <EditDialog id={admin.id as string} />
             </DropdownMenuLabel>
             <DropdownMenuLabel className="gap-1">
-              <DeleteConfirmation id={admin.id as string} />
+              <DeleteDialog id={admin.id as string} />
             </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>

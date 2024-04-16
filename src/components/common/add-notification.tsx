@@ -1,15 +1,14 @@
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { DialogClose } from "@/components/ui/dialog";
+import { Button } from "../ui/button";
 
 export function Notification({ children, variant = "default" }: any) {
   return (
@@ -30,9 +29,9 @@ export function Notification({ children, variant = "default" }: any) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="mx-auto mt-3">
-          <DialogClose asChild>
-            <AlertDialogAction>ok</AlertDialogAction>
-          </DialogClose>
+          <AlertDialogAction>
+            <DialogClose>ok</DialogClose>
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

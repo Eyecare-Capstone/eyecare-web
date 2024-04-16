@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Notification } from "../common/notification";
+import { Notification } from "../common/add-notification";
 import { Spinner } from "../common/spinner";
 
 const adminSchema = z.object({
@@ -40,8 +40,7 @@ export function AddForm() {
       return axios.post(`${baseUrl}/admins`, newAdmin);
     },
     onSuccess: () => {
-      // Refresh query setelah data berhasil dihapus
-      queryClient.invalidateQueries("admin");
+      queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
   });
 
@@ -50,7 +49,6 @@ export function AddForm() {
       const data = {
         email: values.email,
       };
-      console.log(data);
       await mutation.mutateAsync(data);
       form.reset();
     } catch (error) {
