@@ -1,6 +1,7 @@
 import Image from "next/image";
 import heroImage from "../../../public/hero-image.png";
 import { Button } from "../ui/button";
+import { FaEye } from "react-icons/fa6";
 
 export const HeroSection = () => {
   return (
@@ -26,6 +27,7 @@ export const HeroSection = () => {
             <div className="text-center">
               <i className="fa-solid fa-eye text-secondaryColor text-4xl"></i>
               <br />
+              <FaEye className="text-lpYellow w-44 h-20" />
               Vision
             </div>
 

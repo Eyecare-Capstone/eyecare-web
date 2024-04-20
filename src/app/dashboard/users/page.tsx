@@ -7,13 +7,14 @@ import axios from "axios";
 import { useEffect } from "react";
 
 export default function UsersPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_ADMIN_URL;
+  // const baseUrl = process.env.NEXT_PUBLIC_ADMIN_URL;
+  const fakeApi = process.env.NEXT_PUBLIC_FAKE_API;
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery<any>({
     queryKey: ["user"],
     queryFn: async () => {
-      const res = await axios.get(`${baseUrl}/users`).then((res) => res.data);
-      return res.data;
+      const res = await axios.get(`${fakeApi}/users`).then((res) => res.data);
+      return res;
     },
   });
 

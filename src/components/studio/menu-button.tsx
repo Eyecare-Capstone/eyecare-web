@@ -9,29 +9,29 @@ import { GrUserAdmin } from "react-icons/gr";
 export const MenuButton = () => {
   const menuList = [
     {
-      link: "/studio/users",
+      link: "/dashboard/users",
       icon: <FaRegUser size={20} />,
       text: "Users",
     },
     {
-      link: "/studio/articles",
-      icon: <GrArticle size={20} />,
-      text: "Articles",
+      link: "/dashboard/admins",
+      icon: <GrUserAdmin size={20} />,
+      text: "Admins",
     },
     {
-      link: "/studio/doctors",
+      link: "/dashboard/doctors",
       icon: <FaUserDoctor size={20} />,
       text: "Doctors",
     },
     {
-      link: "/studio/maps",
-      icon: <GrMapLocation size={20} />,
-      text: "Maps",
+      link: "/dashboard/articles",
+      icon: <GrArticle size={20} />,
+      text: "Articles",
     },
     {
-      link: "/studio/admins",
-      icon: <GrUserAdmin size={20} />,
-      text: "Admins",
+      link: "/dashboard/maps",
+      icon: <GrMapLocation size={20} />,
+      text: "Maps",
     },
   ];
 
