@@ -9,8 +9,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { DialogClose } from "@/components/ui/dialog";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function MutateNotification({ children, variant = "default" }: any) {
+  const queryClient = useQueryClient();
+  const handleClick = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin"] });
+    queryClient.invalidateQueries({ queryKey: ["user"] });
+    queryClient.invalidateQueries({ queryKey: ["doctor"] });
+  };
   return (
     <AlertDialog defaultOpen={true}>
       <AlertDialogContent className="w-80">
@@ -31,7 +38,10 @@ export function MutateNotification({ children, variant = "default" }: any) {
         <AlertDialogFooter className="mx-auto mt-3 cursor-pointer">
           <AlertDialogAction className="hover:bg-blue-500 bg-blue-500 cursor-pointer">
             <DialogClose className="hover:bg-blue-500 bg-blue-500 cursor-pointer">
-              <DropdownMenuItem className="focus:bg-blue-500 cursor-pointer">
+              <DropdownMenuItem
+                className="focus:bg-blue-500 cursor-pointer"
+                onClick={() => handleClick()}
+              >
                 ok
               </DropdownMenuItem>
             </DialogClose>

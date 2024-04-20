@@ -4,16 +4,18 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { MdMoreHoriz } from "react-icons/md";
 import { MdCopyAll } from "react-icons/md";
-import { MdOutlineDeleteForever } from "react-icons/md";
-import { CiEdit } from "react-icons/ci";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { EditDialog } from "@/components/doctors/edit-dialog";
+import { DeleteDialog } from "@/components/doctors/delete-dialog";
 
 export type Doctor = {
   id: String;
@@ -146,8 +148,7 @@ export const columns: ColumnDef<Doctor>[] = [
     header: "Actions",
     id: "actions",
     cell: ({ row }) => {
-      const user = row.original;
-
+      const admin = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -157,21 +158,19 @@ export const columns: ColumnDef<Doctor>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.id as string)}
+              onClick={() => navigator.clipboard.writeText(admin.id as string)}
               className="gap-1"
             >
-              Copy Doctor ID
+              Copy Admin ID
               <MdCopyAll />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-1">
-              <CiEdit className="text-ring text-xl " />
-              <span className="text-xs">Edit doctor</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="gap-1">
-              <MdOutlineDeleteForever className="text-red-500 text-xl " />
-              <span className="text-xs">Delete doctor</span>
-            </DropdownMenuItem>
+            <DropdownMenuLabel className="gap-1">
+              <EditDialog id={admin.id as string} />
+            </DropdownMenuLabel>
+            <DropdownMenuLabel className="gap-1">
+              <DeleteDialog id={admin.id as string} />
+            </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   height: 5px;
 }
 
@@ -13,7 +13,7 @@
 ::-webkit-scrollbar-thumb {
   background-color: #3576df;
   border-radius: 0.2rem;
-}
+} */
 
 @layer base {
   :root {

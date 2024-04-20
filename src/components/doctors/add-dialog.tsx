@@ -3,16 +3,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { IoMdAdd } from "react-icons/io";
-import { DoctorForm } from "./add-doctor-form";
+import { AddForm } from "./add-form";
 
-export function AddDoctorDialog() {
+export function AddDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -21,14 +20,14 @@ export function AddDoctorDialog() {
           <span className="font-medium text-white">Add doctor</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[825px]">
+      <DialogContent className=" sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add new doctor to database</DialogTitle>
+          <DialogTitle>Add doctor</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when youre done.
+            Create new doctor to your database. Click submit when you are done.
           </DialogDescription>
         </DialogHeader>
-        <DoctorForm />
+        <AddForm />
       </DialogContent>
     </Dialog>
   );

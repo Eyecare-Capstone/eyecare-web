@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { MdOutlineDeleteForever } from "react-icons/md";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Spinner } from "../common/spinner";
 import { MutateNotification } from "../common/mutate-notification";
@@ -16,16 +16,15 @@ import {
 } from "@/components/ui/dialog";
 
 export function DeleteDialog({ id }: any) {
-  const queryClient = useQueryClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const mutation = useMutation({
     mutationFn: (id: any) => {
-      return axios.delete(`${baseUrl}/admins/${id as string}`);
+      return axios.delete(`${baseUrl}/doctors/${id as string}`);
     },
     onSuccess: () => {
       // setTimeout(() => {
-      //   queryClient.invalidateQueries({ queryKey: ["admin"] });
+      //   queryClient.invalidateQueries({ queryKey: ["user"] });
       // }, 1000);
     },
   });
@@ -42,21 +41,21 @@ export function DeleteDialog({ id }: any) {
     <Dialog>
       {mutation.isPending && <Spinner />}
       {mutation.isSuccess && (
-        <MutateNotification>Successfully delete this admin</MutateNotification>
+        <MutateNotification>Successfully delete this doctor</MutateNotification>
       )}
       {mutation.isError && (
-        <MutateNotification>Failed to add new admin</MutateNotification>
+        <MutateNotification>Failed to add new doctor</MutateNotification>
       )}
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <MdOutlineDeleteForever className="text-red-500 text-xl" />
-          <span className="text-xs">Delete admin</span>
+          <MdOutlineDeleteForever className="text-red-500 text-xl " />
+          <span className="text-xs">Delete doctor</span>
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            Are you absolutely sure you want to delete this admin?
+            Are you absolutely sure you want to delete this doctor?
           </DialogTitle>
           <DialogDescription>
             This action cannot be undone. This will permanently delete and

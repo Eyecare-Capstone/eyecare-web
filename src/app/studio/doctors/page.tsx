@@ -1,24 +1,41 @@
-import { Doctor, columns } from "./columns";
+"use client";
+import { AddDialog } from "@/components/doctors/add-dialog";
+import { columns } from "./columns";
 import { DataTable } from "@/components/common/data-table";
-import { AddDoctorDialog } from "@/components/doctors/add-doctor-dialog";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useEffect } from "react";
 
-// async function getData(): Promise<Doctor[]> {
-//   const baseUrl = process.env.FAKE_API;
-//   const res = await fetch(`${baseUrl}/doctors`).then((res) => res.json());
-//   return res;
-// }
+export default function UsersPage() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["doctor"],
+    queryFn: async () => {
+      const res = await axios.get(`${baseUrl}/doctors`).then((res) => res.data);
+      return res.data;
+    },
+  });
 
-export default async function UsersPage() {
-  // const data = await getData();
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ["doctor"] });
+  }, [queryClient]);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen ">
+        <h1 className="text-2xl font-bold mt-3">loading...</h1>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto py-3 h-screen ">
-      {/* <DataTable
+    <div className="container mx-auto py-3 h-screen">
+      <DataTable
         columns={columns}
-        data={data}
-        addDialog={<AddDoctorDialog />}
-      /> */}
-      <h1>hello</h1>
+        data={data ? data : []}
+        addDialog={<AddDialog />}
+      />
     </div>
   );
 }

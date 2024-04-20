@@ -24,7 +24,9 @@ export function DeleteDialog({ id }: any) {
       return axios.delete(`${baseUrl}/users/${id as string}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      // setTimeout(() => {
+      //   queryClient.invalidateQueries({ queryKey: ["user"] });
+      // }, 1000);
     },
   });
 
@@ -65,7 +67,10 @@ export function DeleteDialog({ id }: any) {
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button onClick={() => handleDelete(id)} className="bg-red-500">
+          <Button
+            onClick={() => handleDelete(id)}
+            className="bg-red-500 hover:bg-red-500 cursor-pointer"
+          >
             Delete
           </Button>
         </DialogFooter>

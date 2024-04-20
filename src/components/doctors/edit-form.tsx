@@ -38,22 +38,22 @@ export function EditForm({ id }: any) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
   const mutation = useMutation({
-    mutationKey: ["user", id],
+    mutationKey: ["doctor", id],
     mutationFn: (updatedUser: any) => {
-      return axios.put(`${baseUrl}/users/${id}`, updatedUser);
+      return axios.put(`${baseUrl}/doctors/${id}`, updatedUser);
     },
     onSuccess: () => {
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ["user"] });
+        queryClient.invalidateQueries({ queryKey: ["doctor"] });
       }, 1000);
     },
   });
 
   const { data, isLoading, isError } = useQuery<any>({
-    queryKey: ["user", id],
+    queryKey: ["doctor", id],
     queryFn: async () => {
       const res = await axios
-        .get(`${baseUrl}/users/${id}`)
+        .get(`${baseUrl}/doctors/${id}`)
         .then((res) => res.data);
       console.log(res.data);
       return res.data;

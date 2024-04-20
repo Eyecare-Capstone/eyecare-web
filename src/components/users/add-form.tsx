@@ -48,7 +48,9 @@ export function AddForm() {
       return axios.post(`${baseUrl}/users`, newUser);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }, 1000);
     },
   });
 

@@ -27,11 +27,11 @@ import { GrPrevious } from "react-icons/gr";
 import { GrNext } from "react-icons/gr";
 
 import { ReactNode, useState } from "react";
+// import "@/styles/scroll-table.module.css";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  // addLabel: string;
   addDialog: ReactNode;
 }
 
