@@ -20,6 +20,8 @@ const config = {
     },
     extend: {
       colors: {
+        lpYellow: "#FFCC00",
+        lpPurple: "#4B527E",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

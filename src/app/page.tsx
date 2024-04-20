@@ -1,21 +1,16 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
+import { Navbar } from "@/components/common/navbar";
+import { HeroSection } from "@/components/common/hero-section";
+// import "@/styles/landing-page.module.css";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="">Hello World</h1>
-      <Button>
-        <Link href="/studio">Go to studio</Link>
-      </Button>
-      <Button>
-        <Link href="/auth">Go to auth</Link>
-      </Button>
-      <Button>
-        <Link href="/article">Go to Articles</Link>
-      </Button>
-    </main>
+    <main className="bg-lpPurple h-screen w-full">
+      <Navbar />
 
-    // footer
+      <HeroSection />
+    </main>
   );
 }
