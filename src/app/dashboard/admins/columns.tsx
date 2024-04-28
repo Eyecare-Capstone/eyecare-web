@@ -13,8 +13,8 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { DeleteDialog } from "@/components/admins/delete-dialog";
-import { EditDialog } from "@/components/admins/edit-dialog";
+import { DeleteDialog } from "@/components/dashboard/admins/delete-dialog";
+import { EditDialog } from "@/components/dashboard/admins/edit-dialog";
 
 export type Admin = {
   id: String;

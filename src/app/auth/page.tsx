@@ -1,53 +1,79 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { getStatusText } from "http-status-codes";
+import { ToastAction } from "@/components/ui/toast";
+import Link from "next/link";
 
 export default function AuthPage() {
   const router = useRouter();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const { toast } = useToast();
+  const searchParams = useSearchParams();
+  const baseApi = process.env.NEXT_PUBLIC_BASE_API;
+  const [status, setStatus] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
   const handleClick = async () => {
     try {
-      const res = await axios.get(`${baseUrl}/auth`).then((res) => res.data);
+      axios.defaults.withCredentials = true;
+      const res = await axios.get(`${baseApi}/auth`).then((res) => res.data);
       router.push(res.url);
     } catch (error) {
       console.log(error);
     }
   };
 
-  // useEffect(() => {
-  //   const script = document.createElement("script");
-  //   script.src = "https://accounts.google.com/gsi/client";
-  //   script.async = true;
-  //   document.head.appendChild(script);
+  useEffect(() => {
+    const statusQuery = searchParams.get("status");
+    const messageQuery = searchParams.get("message");
+    setStatus(statusQuery);
+    if (messageQuery) {
+      setMessage(messageQuery);
+    } else {
+      setMessage(
+        "Sorry, you have been redirected because you are not authorized."
+      );
+    }
+  }, []);
 
-  //   return () => {
-  //     document.head.removeChild(script);
-  //   };
-  // }, []);
+  useEffect(() => {
+    if (status && message) {
+      if (status == "200") {
+        toast({
+          title: `${getStatusText(status)} : ${status}`,
+          description: `${message}`,
+          action: (
+            <ToastAction altText="go" className="bg-blue-950 w-1/2 p-5">
+              <Link href={`/`} className="text-sm">
+                Go to landing page
+              </Link>
+            </ToastAction>
+          ),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: `${getStatusText(status)} : ${status}`,
+          description: `${message}`,
+          action: (
+            <ToastAction altText="go" className="bg-black w-1/2 p-5">
+              <Link href={`/`} className="text-sm">
+                Go to landing page
+              </Link>
+            </ToastAction>
+          ),
+        });
+      }
+    }
+  }, [status, message]);
+
   return (
     <div className="w-full h-screen flex justify-center items-center">
-      {/* <div
-        id="g_id_onload"
-        data-client_id="183881121136-i1r500038rlmupheo9dpigthr8b5opmq.apps.googleusercontent.com"
-        data-context="signin"
-        data-ux_mode="popup"
-        data-login_uri="http://localhost:5000/auth"
-        data-auto_prompt="false"
-      ></div>
-
-      <div
-        className="g_id_signin"
-        data-type="standard"
-        data-shape="pill"
-        data-theme="outline"
-        data-text="signin_with"
-        data-size="medium"
-        data-logo_alignment="left"
-      ></div> */}
-
       <Button
         onClick={handleClick}
         variant="secondary"

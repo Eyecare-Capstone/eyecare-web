@@ -14,8 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { EditDialog } from "@/components/users/edit-dialog";
-import { DeleteDialog } from "@/components/users/delete-dialog";
+import { EditDialog } from "@/components/dashboard/users/edit-dialog";
+import { DeleteDialog } from "@/components/dashboard/users/delete-dialog";
 
 export type User = {
   id: String;

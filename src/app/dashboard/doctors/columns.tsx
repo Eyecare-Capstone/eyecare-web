@@ -14,8 +14,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { EditDialog } from "@/components/doctors/edit-dialog";
-import { DeleteDialog } from "@/components/doctors/delete-dialog";
+import { EditDialog } from "@/components/dashboard/doctors/edit-dialog";
+import { DeleteDialog } from "@/components/dashboard/doctors/delete-dialog";
 
 export type Doctor = {
   id: String;
@@ -37,7 +37,7 @@ export const columns: ColumnDef<Doctor>[] = [
     },
   },
   {
-    accessorKey: "id",
+    accessorKey: "doctorId",
     header: "Doctor ID",
     cell: ({ row }) => (
       <div className="w-28 truncate relative ">
@@ -87,7 +87,7 @@ export const columns: ColumnDef<Doctor>[] = [
     ),
   },
   {
-    accessorKey: "long",
+    accessorKey: "lon",
     header: "Long",
   },
   {

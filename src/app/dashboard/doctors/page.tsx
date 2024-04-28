@@ -1,29 +1,63 @@
 "use client";
-import { AddDialog } from "@/components/doctors/add-dialog";
+import { AddDialog } from "@/components/dashboard/doctors/add-dialog";
 import { columns } from "./columns";
 import { DataTable } from "@/components/common/data-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect } from "react";
+import loadingImg from "../../../../public/loading.svg";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { deleteCookie } from "@/lib/actions";
 
 export default function UsersPage() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
+  const router = useRouter();
+
   const queryClient = useQueryClient();
+
   const { data, isLoading } = useQuery<any>({
     queryKey: ["doctor"],
     queryFn: async () => {
-      const res = await axios.get(`${baseUrl}/doctors`).then((res) => res.data);
-      return res.data;
+      try {
+        axios.defaults.withCredentials = true;
+        const res = await axios
+          .get(`${adminApi}/doctors`)
+          .then((res) => res.data);
+
+        if (res.status == 401) {
+          await deleteCookie("admin_data");
+          await deleteCookie("access_token");
+          await deleteCookie("refresh_token");
+          router.push(`/auth?status=${res.status}&message=${res.message}"`);
+        }
+        return res.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError;
+          console.log(axiosError.response);
+          return [];
+        } else {
+          console.log("Unknown Error:", error);
+          return [];
+        }
+      }
     },
   });
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: ["doctor"] });
+    queryClient.refetchQueries({ queryKey: ["doctor"] });
   }, [queryClient]);
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen ">
+        <Image
+          src={loadingImg}
+          alt="loading image"
+          className="w-56 py-2"
+          priority
+        />
         <h1 className="text-2xl font-bold mt-3">loading...</h1>
       </div>
     );

@@ -1,3 +1,5 @@
+import { Rule } from "sanity";
+
 export default {
   name: "blog",
   type: "document",
@@ -7,16 +9,16 @@ export default {
       name: "title",
       type: "string",
       title: "Title of blog article",
-      validation: (Rule: any) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required().error("Required"),
     },
     {
       name: "slug",
       type: "slug",
-      title: "SLug of blog article",
+      title: "Slug of blog article",
       options: {
         source: "title",
       },
-      validation: (Rule: any) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required().error("Required"),
     },
     {
       name: "articleType",
@@ -24,11 +26,11 @@ export default {
       type: "string",
       options: {
         list: [
-          { title: "Education", value: "education" },
+          { title: "Educational", value: "educational" },
           { title: "Nutritional", value: "nutritional" },
         ],
       },
-      validation: (Rule: any) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required().error("Required"),
     },
     {
       name: "language",
@@ -40,11 +42,11 @@ export default {
           { title: "English", value: "en" },
         ],
       },
-      validation: (Rule: any) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required().error("Required"),
     },
     {
-      name: "date",
-      title: "Date",
+      name: "publishedAt",
+      title: "Published At",
       type: "date",
       options: {
         dateFormat: "DD MMM YYYY",
@@ -52,14 +54,15 @@ export default {
       validation: (Rule: any) => Rule.required(),
     },
     {
-      name: "titleImage",
-      type: "image",
-      title: "Title image",
-    },
-    {
       name: "description",
       type: "text",
       title: "Description",
+      validation: (Rule: Rule) => Rule.max(250).error("Max 250 characters"),
+    },
+    {
+      name: "titleImage",
+      type: "image",
+      title: "Title image",
     },
     {
       name: "content",
@@ -68,6 +71,10 @@ export default {
       of: [
         {
           type: "block",
+        },
+        {
+          type: "image",
+          fields: [{ type: "text", name: "alt", title: "Alt" }],
         },
       ],
     },

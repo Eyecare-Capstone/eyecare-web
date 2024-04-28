@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
+    "@portabletext/react": "^3.0.18",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
@@ -27,6 +28,7 @@
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "http-status-codes": "^2.3.0",
     "next": "14.1.4",
     "next-sanity": "^7.1.4",
     "react": "^18",

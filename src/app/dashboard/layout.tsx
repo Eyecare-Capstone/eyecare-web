@@ -1,5 +1,4 @@
-import { Sidebar } from "@/components/studio/sidebar";
-import TanstackProvider from "@/lib/TanstackProvider";
+import { Sidebar } from "@/components/dashboard/sidebar";
 
 export default function AdminLayout({
   children,
@@ -7,11 +6,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <body>
+    <div>
       <Sidebar />
-      <TanstackProvider>
-        <main className="ml-[220px] h-screen">{children}</main>
-      </TanstackProvider>
-    </body>
+      <main className="ml-[220px] h-screen">{children}</main>
+    </div>
   );
 }

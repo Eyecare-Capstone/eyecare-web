@@ -7,6 +7,10 @@ npm install
 npm run dev
 ```
 
+run the landing-page server:
+cd landing-page
+http-server
+
 run the cms server:
 
 - cd eyecare-blog

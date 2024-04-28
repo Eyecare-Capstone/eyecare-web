@@ -2,18 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ::-webkit-scrollbar {
+::-webkit-scrollbar {
   height: 5px;
+  width: 2px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #13252e;
+  background: #13254e;
+  border-radius: 0.2rem;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #3576df;
+  background-color: white;
   border-radius: 0.2rem;
-} */
+}
 
 @layer base {
   :root {
