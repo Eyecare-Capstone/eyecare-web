@@ -6,10 +6,9 @@ import { BackButton } from "@/components/common/back-button";
 import serverDown from "../../../public/server_down.svg";
 import loadingImg from "../../../public/loading-yellow.svg";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SelectLangButton } from "@/components/articles/select-lang-button";
-import { usePathname, useSearchParams } from "next/navigation";
 
 export default function ArticlesPage() {
   const baseAPI = process.env.NEXT_PUBLIC_BASE_API;
@@ -19,9 +18,9 @@ export default function ArticlesPage() {
   const [type, setType] = useState<string>("");
   const [isEnable, setIsEnable] = useState(false);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     const lang = searchParams.get("lang");
     const type = searchParams.get("type");
 

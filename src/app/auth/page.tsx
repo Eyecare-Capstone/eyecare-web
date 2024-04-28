@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
@@ -13,14 +12,13 @@ import Link from "next/link";
 export default function AuthPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
-  const baseApi = process.env.NEXT_PUBLIC_BASE_API;
   const [status, setStatus] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const handleClick = async () => {
     try {
       axios.defaults.withCredentials = true;
+      const baseApi = process.env.NEXT_PUBLIC_BASE_API;
       const res = await axios.get(`${baseApi}/auth`).then((res) => res.data);
       router.push(res.url);
     } catch (error) {
@@ -29,6 +27,7 @@ export default function AuthPage() {
   };
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
     const statusQuery = searchParams.get("status");
     const messageQuery = searchParams.get("message");
     setStatus(statusQuery);
