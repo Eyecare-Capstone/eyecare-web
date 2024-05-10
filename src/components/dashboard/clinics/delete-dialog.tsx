@@ -29,14 +29,21 @@ export function DeleteDialog({ id }: any) {
     mutationFn: async (id: any) => {
       try {
         const res = await axios
-          .delete(`${adminApi}/doctors/${id as string}`)
+          .delete(`${adminApi}/clinics/${id as string}`)
           .then((res) => res.data);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError.response?.data;
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
+          return axiosError;
         } else {
           console.log("Unknown Error:", error);
         }
@@ -49,7 +56,7 @@ export function DeleteDialog({ id }: any) {
       const res = await mutation.mutateAsync(id);
 
       if (res.status == 200) {
-        queryClient.refetchQueries({ queryKey: ["doctor"] });
+        queryClient.refetchQueries({ queryKey: ["clinic"] });
         toast({
           title: ` ${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
@@ -78,20 +85,20 @@ export function DeleteDialog({ id }: any) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger asChild>
         <Button variant="outline" size="sm">
           <MdOutlineDeleteForever className="text-red-500 text-xl " />
-          <span className="text-xs">Delete doctor</span>
+          <span className="text-xs">Delete clinic</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Are you absolutely sure you want to delete this doctor?
+            Are you absolutely sure you want to delete this clinic?
           </AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete and
-            remove this admin from our database.
+            remove this clinic from our database.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

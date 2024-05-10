@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,8 +52,15 @@ export function AddForm({ setOpen }: any) {
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -111,9 +119,7 @@ export function AddForm({ setOpen }: any) {
               <FormControl>
                 <Input type="email" placeholder="Enter email..." {...field} />
               </FormControl>
-              <FormDescription>
-                This is the admin registered email.
-              </FormDescription>
+              <FormDescription>Admin's registered email.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

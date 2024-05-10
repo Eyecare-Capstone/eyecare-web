@@ -23,7 +23,7 @@ export type User = {
   email: String;
   avatar: String | undefined;
 };
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     header: "No",
     cell: ({ row }) => {
@@ -72,29 +72,11 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: "avatar",
     header: "Avatar",
     cell: ({ row }) => (
-      <div className="w-32 truncate relative">
-        <div
-          className="max-h-20 "
-          onClick={(e) => {
-            e.stopPropagation();
-            const element = e.currentTarget;
-            const isOverflowing = element.classList.contains("overflow-y-auto");
-            if (isOverflowing) {
-              element.classList.remove("overflow-y-auto");
-            } else {
-              element.classList.add("overflow-y-auto");
-            }
-
-            const handleBlur = () => {
-              element.classList.remove("overflow-y-auto");
-              element.removeEventListener("blur", handleBlur);
-            };
-            element.addEventListener("blur", handleBlur);
-          }}
-        >
-          <span className="block">{row.original.avatar}</span>
-        </div>
-      </div>
+      <input
+        className=" text-white bg-background group-hover:bg-background/10 w-32"
+        readOnly
+        value={row.original.avatar as string}
+      />
     ),
   },
   {
@@ -114,7 +96,7 @@ export const columns: ColumnDef<any>[] = [
               onClick={() => navigator.clipboard.writeText(admin.id as string)}
               className="gap-1"
             >
-              Copy Admin ID
+              Copy User ID
               <MdCopyAll />
             </DropdownMenuItem>
             <DropdownMenuSeparator />

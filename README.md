@@ -1,18 +1,10 @@
-## Getting Started
+# Getting Started
 
-run the development server:
+### Run the development server:
 
-```bash
-npm install
-npm run dev
-```
+- npm run dev
 
-run the landing-page server:
-cd landing-page
-http-server
+## Run In Production
 
-run the cms server:
-
-- cd eyecare-blog
-- npm i
-- run npm dev
+- npm run build
+- npm run start

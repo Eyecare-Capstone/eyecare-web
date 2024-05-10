@@ -29,14 +29,14 @@ export function AddDialog() {
           onClick={() => setOpen(true)}
         >
           <IoMdAdd className="w-4 h-4 text-white " />
-          <span className="font-medium text-white">Add doctor</span>
+          <span className="font-medium text-white">Add Clinic</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[925px] h-[600px] flex flex-col">
+      <DialogContent className="sm:max-w-[925px] h-[600px] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Add doctor</DialogTitle>
+          <DialogTitle>Add Clinic</DialogTitle>
           <DialogDescription>
-            Create new doctor to your database. Click submit when you are done.
+            Create new clinic to your database. Click submit when you are done.
           </DialogDescription>
         </DialogHeader>
         <div className="h-full overflow-auto">

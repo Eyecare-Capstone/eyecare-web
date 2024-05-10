@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,18 +64,18 @@ export function EditForm({ id, setOpen }: any) {
           .get(`${adminApi}/admins/${id}`)
           .then((res) => res.data);
 
-        if (res.status == 401) {
-          await deleteCookie("admin_data");
-          await deleteCookie("access_token");
-          await deleteCookie("refresh_token");
-          router.push(`/auth?status=${res.status}&message=${res.message}"`);
-        }
-
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -145,6 +146,7 @@ export function EditForm({ id, setOpen }: any) {
     <Form {...form}>
       {isLoading && <Spinner />}
       {mutation.isPending && <Spinner />}
+      {isLoading && <Spinner />}
       <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-6">
         <FormField
           control={form.control}
@@ -155,9 +157,7 @@ export function EditForm({ id, setOpen }: any) {
               <FormControl>
                 <Input type="email" placeholder="Enter email..." {...field} />
               </FormControl>
-              <FormDescription>
-                This is the admin registered email.
-              </FormDescription>
+              <FormDescription>Admin's registered email.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

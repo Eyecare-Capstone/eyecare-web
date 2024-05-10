@@ -4,9 +4,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-
 import {
   Form,
   FormControl,
@@ -18,21 +17,26 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "../../common/spinner";
+import { Spinner } from "@/components/common/spinner";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
-import { useEffect, useState } from "react";
+import Image from "next/image";
 
-const doctorSchema = z.object({
+const clinicSchema = z.object({
   name: z
     .string()
     .trim()
     .min(2, { message: "Name is required and must be at least 2 characters." }),
-  picture: z.any(),
-  lon: z.string().min(1, { message: "Required" }),
-  lat: z.string().min(1, { message: "Required" }),
+  picture: z
+    .string()
+    .min(2, { message: "Image URL is required and must be a valid URL" }),
+  province: z.string().trim().min(2, { message: "Required." }),
+  city: z.string().trim().min(2, { message: "Required." }),
+  lon: z.string().min(2, { message: "Required" }),
+  lat: z.string().min(2, { message: "Required" }),
   address: z.string().trim().min(2, { message: "Required" }),
   star: z.string().min(1, { message: "Required" }),
   monday: z.string().trim().optional(),
@@ -44,17 +48,90 @@ const doctorSchema = z.object({
   sunday: z.string().trim().optional(),
 });
 
-export function AddForm({ setOpen }: any) {
+export function EditForm({ id, setOpen }: any) {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+  const [picture, setPicture] = useState("");
   const [file, setFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof doctorSchema>>({
-    resolver: zodResolver(doctorSchema),
+  const mutation = useMutation({
+    mutationKey: [`${id}`],
+    mutationFn: async (updatedClinic: any) => {
+      try {
+        const res = await axios
+          .put(`${adminApi}/clinics/${id}`, updatedClinic, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((res) => res.data);
+        return res;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
+          return axiosError;
+        } else {
+          console.log("Unknown Error:", error);
+        }
+      }
+    },
+  });
+
+  const { data, isLoading, isError } = useQuery<any>({
+    queryKey: [`${id}`],
+    queryFn: async () => {
+      try {
+        const res = await axios
+          .get(`${adminApi}/clinics/${id}`)
+          .then((res) => res.data);
+
+        return res.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
+          return error;
+        } else {
+          console.log("Unknown Error:", error);
+          return error;
+        }
+      }
+    },
+  });
+
+  if (isError) {
+    toast({
+      variant: "destructive",
+      title: "Uh oh! Something went wrong.",
+      description: "There was a problem with your request.",
+    });
+  }
+
+  const form = useForm<z.infer<typeof clinicSchema>>({
+    resolver: zodResolver(clinicSchema),
     defaultValues: {
       name: "",
+      picture: "",
+      province: "",
+      city: "",
       lon: "",
       lat: "",
       address: "",
@@ -69,30 +146,36 @@ export function AddForm({ setOpen }: any) {
     },
   });
 
-  const queryClient = useQueryClient();
-
-  const mutation = useMutation({
-    mutationFn: async (newDoctor: any) => {
-      try {
-        const res = await axios.post(`${adminApi}/doctors`, newDoctor, {
-          headers: {
-            "Content-Type": `multipart/form-data`,
-          },
-        });
-        console.log(res.data);
-        return res.data;
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError;
-        } else {
-          console.log("Unknown Error:", error);
-          return error;
-        }
+  useEffect(() => {
+    if (data) {
+      form.reset({
+        name: data?.name,
+        province: data?.province,
+        city: data?.city,
+        picture: data?.picture,
+        lon: data?.lon,
+        lat: data?.lat,
+        address: data?.address,
+        star: data?.star,
+        monday: data?.monday,
+        tuesday: data?.tuesday,
+        wednesday: data?.wednesday,
+        thursday: data?.thursday,
+        friday: data?.friday,
+        saturday: data?.saturday,
+        sunday: data?.sunday,
+      });
+      if (
+        data?.picture !== undefined &&
+        data?.picture !== null &&
+        data?.picture !== ""
+      ) {
+        setPicture(data.picture);
+      } else {
+        setPicture("");
       }
-    },
-  });
+    }
+  }, [data, form]);
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -104,16 +187,21 @@ export function AddForm({ setOpen }: any) {
   useEffect(() => {
     if (file) {
       setLoading(true);
-      // Simulasi proses setFile yang memakan waktu
       setTimeout(() => {
         setLoading(false);
-      }, 3000); // Misalnya, setelah 3 detik loading selesai
+      }, 3000);
     }
   }, [file]);
 
   const onSubmit = async (values: any) => {
     try {
-      const schedule = {
+      const data = {
+        name: values.name,
+        picture: values.picture,
+        lon: values.lon,
+        lat: values.lat,
+        address: values.address,
+        star: values.star,
         monday: values.monday,
         tuesday: values.tuesday,
         wednesday: values.wednesday,
@@ -122,26 +210,12 @@ export function AddForm({ setOpen }: any) {
         saturday: values.saturday,
         sunday: values.sunday,
       };
-
-      // Add form fields to the FormData object
-      const newDoctorFormData = new FormData();
-      newDoctorFormData.append("name", values.name);
-      newDoctorFormData.append("file", file);
-      newDoctorFormData.append("lon", values.lon);
-      newDoctorFormData.append("lat", values.lat);
-      newDoctorFormData.append("address", values.address);
-      newDoctorFormData.append("star", values.star);
-      newDoctorFormData.append("schedule", JSON.stringify(schedule));
-
-      console.log(newDoctorFormData);
-
-      const res = await mutation.mutateAsync(newDoctorFormData);
-
+      console.log(data);
+      const res = await mutation.mutateAsync(data);
       setOpen(false);
-
       if (res.status == 200) {
         form.reset();
-        queryClient.refetchQueries({ queryKey: ["doctor"] });
+        queryClient.refetchQueries({ queryKey: ["clinic"] });
         toast({
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
@@ -171,28 +245,50 @@ export function AddForm({ setOpen }: any) {
   return (
     <Form {...form}>
       {mutation.isPending && <Spinner />}
+      {isLoading && <Spinner />}
       {loading && <Spinner />}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="mt-3 space-y-6 w-full  h-full flex flex-col "
         encType="multipart/form-data"
       >
-        {/* name picture */}
+        {/* name*/}
         <div className="flex flex-row justify-center items-center gap-10 p-2">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Clinic Name</FormLabel>
                 <FormControl>
-                  <Input type="text" placeholder="Enter name..." {...field} />
+                  <Input
+                    type="text"
+                    placeholder="Enter clinic name..."
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription>Doctor's display name.</FormDescription>
+                <FormDescription>Clinic's display name.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+        </div>
+
+        {/*picture */}
+        <div className="flex flex-row justify-center items-center gap-10 p-2">
+          <div>
+            {picture !== "" ? (
+              <Image
+                src={picture}
+                alt="clinic picture"
+                width={200}
+                height={200}
+                className="w-auto h-auto"
+              />
+            ) : (
+              <></>
+            )}
+          </div>
 
           <FormField
             control={form.control}
@@ -208,7 +304,48 @@ export function AddForm({ setOpen }: any) {
                     onChange={handleFileChange}
                   />
                 </FormControl>
-                <FormDescription>Doctor's display picture.</FormDescription>
+                <FormDescription>Clinic's display picture.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* province city */}
+        <div className="flex flex-row justify-center items-center gap-10 p-2">
+          <FormField
+            control={form.control}
+            name="province"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Province</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Enter clinic province..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>Clinic's province.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem className="flex-1 ">
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Enter clinic city..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>Clinic's city.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -219,38 +356,37 @@ export function AddForm({ setOpen }: any) {
         <div className="flex flex-row justify-center items-center gap-10 p-2">
           <FormField
             control={form.control}
-            name="lon"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Longitude</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    step="any"
-                    placeholder="Enter doctor longitude..."
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>Doctor's location longitude.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="lat"
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormLabel>Latitude</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
-                    step="any"
-                    placeholder="Enter doctor latitude..."
+                    type="text"
+                    placeholder="Enter clinic latitude..."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's location latitude.</FormDescription>
+                <FormDescription>Clinic's location latitude.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lon"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Longitude</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Enter clinic longitude..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>Clinic's location longitude.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -268,11 +404,11 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter doctor address..."
+                    placeholder="Enter clinic address..."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's street address.</FormDescription>
+                <FormDescription>Clinic's street address.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -286,15 +422,15 @@ export function AddForm({ setOpen }: any) {
                 <FormLabel>Star Rating</FormLabel>
                 <FormControl>
                   <Input
-                    type="text"
+                    type="number"
                     step="0.1"
                     min="1"
                     max="5"
-                    placeholder="Enter doctor rating (1-5)..."
+                    placeholder="Enter clinic rating (1-5)..."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's star rating (1-5).</FormDescription>
+                <FormDescription>Clinic's star rating (1-5).</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -312,11 +448,11 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's schedule for Monday.</FormDescription>
+                <FormDescription>Clinic's schedule for Monday.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -331,12 +467,12 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Doctor's schedule for Tuesday.
+                  Clinic's schedule for Tuesday.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -351,16 +487,16 @@ export function AddForm({ setOpen }: any) {
             name="wednesday"
             render={({ field }) => (
               <FormItem className="flex-1">
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Wednesday</FormLabel>
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Doctor's schedule for Wednesday.
+                  Clinic's schedule for Wednesday.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -376,12 +512,12 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Doctor's schedule for Thursday.
+                  Clinic's schedule for Thursday.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -400,11 +536,11 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's schedule for Friday.</FormDescription>
+                <FormDescription>Clinic's schedule for Friday.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -419,12 +555,12 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule..."
+                    placeholder="Enter the clinic's schedule..."
                     {...field}
                   />
                 </FormControl>
                 <FormDescription>
-                  Doctor's schedule for Saturday.
+                  Clinic's schedule for Saturday.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -443,11 +579,11 @@ export function AddForm({ setOpen }: any) {
                 <FormControl>
                   <Input
                     type="text"
-                    placeholder="Enter the doctor's schedule...."
+                    placeholder="Enter the clinic's schedule...."
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>Doctor's schedule for Sunday.</FormDescription>
+                <FormDescription>Clinic's schedule for Sunday.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

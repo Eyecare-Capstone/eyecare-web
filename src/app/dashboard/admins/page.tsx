@@ -25,18 +25,18 @@ export default function AdminsPage() {
           .get(`${adminApi}/admins`)
           .then((res) => res.data);
 
-        if (res.status == 401) {
-          await deleteCookie("admin_data");
-          await deleteCookie("access_token");
-          await deleteCookie("refresh_token");
-          router.push(`/auth?status=${res.status}&message=${res.message}"`);
-        }
-
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
           return [];
         } else {
           console.log("Unknown Error:", error);

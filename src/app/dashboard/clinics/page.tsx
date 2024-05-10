@@ -1,5 +1,5 @@
 "use client";
-import { AddDialog } from "@/components/dashboard/doctors/add-dialog";
+import { AddDialog } from "@/components/dashboard/clinics/add-dialog";
 import { columns } from "./columns";
 import { DataTable } from "@/components/common/data-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,32 +10,32 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
 
-export default function UsersPage() {
+export default function ClinicsPage() {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
   const router = useRouter();
 
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery<any>({
-    queryKey: ["doctor"],
+    queryKey: ["clinic"],
     queryFn: async () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios
-          .get(`${adminApi}/doctors`)
+          .get(`${adminApi}/clinics`)
           .then((res) => res.data);
-
-        if (res.status == 401) {
-          await deleteCookie("admin_data");
-          await deleteCookie("access_token");
-          await deleteCookie("refresh_token");
-          router.push(`/auth?status=${res.status}&message=${res.message}"`);
-        }
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res.status}&message=${res.message}"`);
+          }
           return [];
         } else {
           console.log("Unknown Error:", error);
@@ -46,7 +46,7 @@ export default function UsersPage() {
   });
 
   useEffect(() => {
-    queryClient.refetchQueries({ queryKey: ["doctor"] });
+    queryClient.refetchQueries({ queryKey: ["clinic"] });
   }, [queryClient]);
 
   if (isLoading) {

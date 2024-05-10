@@ -2,14 +2,16 @@
 import { Button } from "@/components/ui/button";
 import { FcGoogle } from "react-icons/fc";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { ToastAction } from "@/components/ui/toast";
 import Link from "next/link";
+import { deleteCookie } from "@/lib/actions";
 
 export default function AuthPage() {
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
   const router = useRouter();
   const { toast } = useToast();
   const [status, setStatus] = useState<string | null>(null);
@@ -19,10 +21,28 @@ export default function AuthPage() {
     try {
       axios.defaults.withCredentials = true;
       const baseApi = process.env.NEXT_PUBLIC_BASE_API;
-      const res = await axios.get(`${baseApi}/auth`).then((res) => res.data);
+      const res = await axios
+        .get(`${baseApi}/auth`, {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        })
+        .then((res) => res.data);
       router.push(res.url);
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        const axiosError = error as AxiosError<any>;
+        const res = axiosError.response?.data;
+        console.log(res);
+        if (res?.status == 401) {
+          await deleteCookie("admin_data");
+          await deleteCookie("access_token");
+          await deleteCookie("refresh_token");
+          router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+        }
+      } else {
+        console.log("Unknown Error:", error);
+      }
     }
   };
 

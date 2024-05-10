@@ -9,9 +9,9 @@ import { Avatar, AvatarImage } from "../ui/avatar";
 import { HiOutlineLogout } from "react-icons/hi";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { RxAvatar } from "react-icons/rx";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getRefreshToken, getSession } from "@/lib/actions";
+import { deleteCookie, getSession } from "@/lib/actions";
 import axios, { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
@@ -26,14 +26,15 @@ export const UserMenu = () => {
   const baseApi = process.env.NEXT_PUBLIC_BASE_API;
   const router = useRouter();
   const { toast } = useToast();
+  const pictureRef = useRef<string | undefined>(undefined);
 
-  const [admin, setAdmin] = useState<Admin>();
+  const [admin, setAdmin] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       const adminData = await getSession();
-
-      setAdmin(adminData as Admin);
+      setAdmin(adminData.name);
+      pictureRef.current = adminData.picture;
     };
 
     fetchData();
@@ -44,7 +45,7 @@ export const UserMenu = () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios
-          .get(`${baseApi}/logout`)
+          .post(`${baseApi}/logout`)
           .then((res) => res.data);
         return res;
       } catch (error) {
@@ -100,14 +101,14 @@ export const UserMenu = () => {
           >
             <div className="flex justify-between items-center w-full ">
               <div className="flex gap-2">
-                {admin?.picture ? (
+                {pictureRef.current ? (
                   <Avatar className="h-5 w-5">
-                    <AvatarImage src={`${admin.picture}`} />
+                    <AvatarImage src={`${pictureRef.current}`} />
                   </Avatar>
                 ) : (
                   <RxAvatar size={20} />
                 )}
-                {admin ? <span>{admin.name}</span> : <span>NOT FOUND</span>}
+                {admin ? <span>{admin}</span> : <span>NOT FOUND</span>}
               </div>
               <TfiMoreAlt size={20} />
             </div>

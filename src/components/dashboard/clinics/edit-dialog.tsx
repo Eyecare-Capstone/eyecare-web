@@ -27,17 +27,19 @@ export function EditDialog({ id }: any) {
           onClick={() => setOpen(true)}
         >
           <CiEdit className="text-ring text-xl" />
-          <span className="text-xs">Edit doctor</span>
+          <span className="text-xs">Edit clinic</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[925px] h-[600px] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Update doctor</DialogTitle>
+          <DialogTitle>Update clinic</DialogTitle>
           <DialogDescription>
-            Update this doctor to your database. Click submit when you are done.
+            Update this clinic to your database. Click submit when you are done.
           </DialogDescription>
         </DialogHeader>
-        <EditForm id={id} setOpen={setOpen} />
+        <div className="h-full overflow-auto">
+          <EditForm id={id} setOpen={setOpen} />
+        </div>
       </DialogContent>
     </Dialog>
   );

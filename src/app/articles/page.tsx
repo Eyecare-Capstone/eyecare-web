@@ -1,5 +1,5 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { ArticleCard } from "@/components/articles/article-card";
 import { BackButton } from "@/components/common/back-button";
@@ -9,40 +9,38 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { SelectLangButton } from "@/components/articles/select-lang-button";
+import { deleteCookie } from "@/lib/actions";
 
 export default function ArticlesPage() {
-  const baseAPI = process.env.NEXT_PUBLIC_BASE_API;
+  const baseApi = process.env.NEXT_PUBLIC_BASE_API;
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
   const router = useRouter();
   const [lang, setLang] = useState<string>("");
   const [type, setType] = useState<string>("");
   const [isEnable, setIsEnable] = useState(false);
   const pathname = usePathname();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
+    queryClient.clear();
+
     const searchParams = new URLSearchParams(window.location.search);
-    const lang = searchParams.get("lang");
-    const type = searchParams.get("type");
+    const langParam = searchParams.get("lang") || "en";
+    const typeParam = searchParams.get("type") || "";
 
-    if (!lang) {
+    if ((langParam as string) !== "en" && (langParam as string) !== "id") {
       router.push("/articles?lang=en");
+      return;
     }
 
-    if (lang == "en") {
-      setLang("en");
-    } else if (lang == "id") {
-      setLang("id");
-    } else {
-      router.push("/articles?lang=en");
-    }
-
-    if (type == "nutritional") {
-      setType("nutritional");
-    } else if (type == "educational") {
-      setType("educational");
-    } else {
-      setType("");
-    }
+    setLang(langParam);
+    setType(
+      typeParam === "nutritional"
+        ? "nutritional"
+        : type === "educational"
+        ? "educational"
+        : ""
+    );
 
     setTimeout(() => {
       setIsEnable(true);
@@ -55,22 +53,24 @@ export default function ArticlesPage() {
     queryFn: async () => {
       try {
         const res = await axios
-          .get(
-            `${baseAPI}/articles?lang=${lang ? lang : "en"}&type=${
-              type ? type : ""
-            }`,
-            {
-              headers: {
-                Authorization: `Bearer ${apiKey}`,
-              },
-            }
-          )
+          .get(`${baseApi}/articles?lang=${lang}&type=${type}`, {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+            },
+          })
           .then((res) => res.data);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
           return [];
         } else {
           console.log("Unknown Error:", error);
@@ -128,21 +128,23 @@ export default function ArticlesPage() {
     );
   }
   return (
-    <div className="py-16 flex flex-col  items-center justify-center">
+    <div className="py-10 sm:py-10 md:py-12 lg:py-16 flex flex-col items-center justify-center">
       <div>
         <BackButton hrefLink={`/`}>Back</BackButton>
         <SelectLangButton changeLanguage={changeLanguage} lang={lang} />
       </div>
 
-      <h1 className="text-5xl font-bold pb-3">Articles on Eye Care</h1>
-      <p className="text-lg brightness-50">
+      <h1 className="mt-10 lg:mt-5 text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold pb-3">
+        Articles on Eye Care
+      </h1>
+      <p className="text-[10px] sm:text-xs md:text-base lg:text-lg brightness-50 mb-2 lg:mb-8">
         Discover interesting and beneficial articles to accompany your eye care
         routine.
       </p>
       {isSuccess && (
         <>
           {data?.length === 0 ? (
-            <h1 className="text-2xl font-bold py-44 text-lpYellow">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold py-44  text-lpYellow">
               No articles available
             </h1>
           ) : (

@@ -58,7 +58,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex gap-2 items-center py-3 w-full ">
+      <div className="flex gap-2 items-center py-3 w-full">
         {/* search filter */}
         <div className="flex items-center w-1/3">
           <Input
@@ -102,7 +102,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* table  */}
-      <div className="rounded-md border ">
+      <div className="rounded-md border group ">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

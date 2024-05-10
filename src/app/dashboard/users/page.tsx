@@ -16,7 +16,7 @@ export default function UsersPage() {
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError } = useQuery<any>({
+  const { data, isLoading } = useQuery<any>({
     queryKey: ["user"],
     queryFn: async () => {
       try {
@@ -25,18 +25,18 @@ export default function UsersPage() {
           .get(`${adminApi}/users`)
           .then((res) => res.data);
 
-        if (res.status == 401) {
-          await deleteCookie("admin_data");
-          await deleteCookie("access_token");
-          await deleteCookie("refresh_token");
-          router.push(`/auth?status=${res.status}&message=${res.message}"`);
-        }
-
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
           return [];
         } else {
           console.log("Unknown Error:", error);

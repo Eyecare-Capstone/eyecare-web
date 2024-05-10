@@ -34,9 +34,16 @@ export function DeleteDialog({ id }: any) {
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError.response?.data;
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res?.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+          }
+          return axiosError;
         } else {
           console.log("Unknown Error:", error);
         }
@@ -87,11 +94,11 @@ export function DeleteDialog({ id }: any) {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Are you absolutely sure you want to delete this admin?
+            Are you absolutely sure you want to delete this user?
           </AlertDialogTitle>
           <AlertDialogDescription>
             This action cannot be undone. This will permanently delete and
-            remove this admin from our database.
+            remove this user from our database.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

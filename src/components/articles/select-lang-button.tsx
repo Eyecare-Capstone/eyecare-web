@@ -15,7 +15,7 @@ export const SelectLangButton = ({ changeLanguage, lang }: any) => {
     <select
       onChange={(e) => changeLanguage(e.target.value)}
       defaultValue={lang}
-      className="absolute top-10 right-10 z-50 bg-blue-950 text-lpYellow rounded-sm w-28 p-2 mr-8 mt-12"
+      className="absolute top-10 right-0 lg:right-10 z-50 bg-blue-950 text-lpYellow rounded-sm text-xs sm:text-xs md:text-base w-24 sm:w-24 md:w-28 lg:w-28 p-2 mr-3 sm:mr-4 md:mr-6 lg:mr-8 "
     >
       {sortedLanguages.map((language) => (
         <option

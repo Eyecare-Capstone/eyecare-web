@@ -6,6 +6,8 @@ import { GrArticle } from "react-icons/gr";
 import { FaUserDoctor } from "react-icons/fa6";
 import { GrMapLocation } from "react-icons/gr";
 import { GrUserAdmin } from "react-icons/gr";
+import { BiClinic } from "react-icons/bi";
+
 export const MenuButton = () => {
   const menuList = [
     {
@@ -19,20 +21,20 @@ export const MenuButton = () => {
       text: "Admins",
     },
     {
-      link: "/dashboard/doctors",
-      icon: <FaUserDoctor size={20} />,
-      text: "Doctors",
+      link: "/dashboard/clinics",
+      icon: <BiClinic size={20} />,
+      text: "Clinics",
     },
     {
       link: "/dashboard/articles",
       icon: <GrArticle size={20} />,
       text: "Articles",
     },
-    // {
-    //   link: "/dashboard/maps",
-    //   icon: <GrMapLocation size={20} />,
-    //   text: "Maps",
-    // },
+    {
+      link: "/dashboard/maps",
+      icon: <GrMapLocation size={20} />,
+      text: "Maps",
+    },
   ];
 
   return (
