@@ -16,6 +16,8 @@ import axios, { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
+import { Spinner } from "../common/spinner";
+import Image from "next/image";
 
 interface Admin {
   name: string;
@@ -26,15 +28,23 @@ export const UserMenu = () => {
   const baseApi = process.env.NEXT_PUBLIC_BASE_API;
   const router = useRouter();
   const { toast } = useToast();
-  const pictureRef = useRef<string | undefined>(undefined);
+  const [pictureUrl, setPictureUrl] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [admin, setAdmin] = useState("");
 
   useEffect(() => {
+    if (loading) {
+      setTimeout(() => setLoading(false), 1000);
+    }
+  }, [loading]);
+
+  useEffect(() => {
     const fetchData = async () => {
-      const adminData = await getSession();
-      setAdmin(adminData.name);
-      pictureRef.current = adminData.picture;
+      const { name, picture } = await getSession();
+      setAdmin(name);
+      setPictureUrl(picture);
+      setLoading(true);
     };
 
     fetchData();
@@ -60,6 +70,7 @@ export const UserMenu = () => {
   });
 
   const handleLogout = async () => {
+    setLoading(true);
     const res = await mutation.mutateAsync();
 
     if (!res) {
@@ -93,6 +104,7 @@ export const UserMenu = () => {
 
   return (
     <div className="absolute left-0 bottom-2 w-full px-3 ">
+      {loading && <Spinner />}
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -101,9 +113,16 @@ export const UserMenu = () => {
           >
             <div className="flex justify-between items-center w-full ">
               <div className="flex gap-2">
-                {pictureRef.current ? (
+                {pictureUrl && !loading ? (
                   <Avatar className="h-5 w-5">
-                    <AvatarImage src={`${pictureRef.current}`} />
+                    <Image
+                      src={pictureUrl}
+                      alt="picture"
+                      width={50}
+                      height={50}
+                      className="w-auto h-auto"
+                      priority
+                    />
                   </Avatar>
                 ) : (
                   <RxAvatar size={20} />

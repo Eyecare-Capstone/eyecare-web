@@ -9,6 +9,7 @@ import loadingImg from "../../../../public/loading.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
+import { storeTokenCookies } from "@/lib/utils";
 
 export default function ClinicsPage() {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
@@ -24,6 +25,7 @@ export default function ClinicsPage() {
         const res = await axios
           .get(`${adminApi}/clinics`)
           .then((res) => res.data);
+        await storeTokenCookies(res.token);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -36,6 +38,7 @@ export default function ClinicsPage() {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res.status}&message=${res.message}"`);
           }
+          await storeTokenCookies(res.token);
           return [];
         } else {
           console.log("Unknown Error:", error);

@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { deleteCookie } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import { storeTokenCookies } from "@/lib/utils";
 
 const adminSchema = z.object({
   email: z.string().email({
@@ -53,14 +54,15 @@ export function AddForm({ setOpen }: any) {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError<any>;
-          const res = axiosError.response?.data;
-          console.log(res);
-          if (res?.status == 401) {
+          const { status, message, token } = axiosError.response?.data;
+          console.log(message);
+          if (status == 401) {
             await deleteCookie("admin_data");
             await deleteCookie("access_token");
             await deleteCookie("refresh_token");
-            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+            router.push(`/auth?status=${status}&message=${message}"`);
           }
+          await storeTokenCookies(token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -76,6 +78,7 @@ export function AddForm({ setOpen }: any) {
         email: values.email,
       };
       const res = await mutation.mutateAsync(data);
+      await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
         form.reset();
@@ -84,7 +87,7 @@ export function AddForm({ setOpen }: any) {
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
+      } else if (res == 401) {
         await deleteCookie("admin_data");
         await deleteCookie("access_token");
         await deleteCookie("refresh_token");

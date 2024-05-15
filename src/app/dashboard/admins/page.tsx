@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { deleteCookie } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import { storeTokenCookies } from "@/lib/utils";
 
 export default function AdminsPage() {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
@@ -25,18 +26,21 @@ export default function AdminsPage() {
           .get(`${adminApi}/admins`)
           .then((res) => res.data);
 
+        await storeTokenCookies(res.token);
+
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError<any>;
-          const res = axiosError.response?.data;
-          console.log(res);
-          if (res?.status == 401) {
+          const { status, message, token } = axiosError.response?.data;
+          console.log(status);
+          if (status == 401) {
             await deleteCookie("admin_data");
             await deleteCookie("access_token");
             await deleteCookie("refresh_token");
-            router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
+            router.push(`/auth?status=${status}&message=${message}"`);
           }
+          await storeTokenCookies(token);
           return [];
         } else {
           console.log("Unknown Error:", error);

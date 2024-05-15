@@ -9,18 +9,27 @@ import { getStatusText } from "http-status-codes";
 import { ToastAction } from "@/components/ui/toast";
 import Link from "next/link";
 import { deleteCookie } from "@/lib/actions";
+import { storeAdminCookies, storeTokenCookies } from "@/lib/utils";
+import { Spinner } from "@/components/common/spinner";
 
 export default function AuthPage() {
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
+  const baseApi = process.env.NEXT_PUBLIC_BASE_API;
   const router = useRouter();
   const { toast } = useToast();
   const [status, setStatus] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => setLoading(false), 2000);
+    }
+  }, [loading]);
 
   const handleClick = async () => {
     try {
       axios.defaults.withCredentials = true;
-      const baseApi = process.env.NEXT_PUBLIC_BASE_API;
       const res = await axios
         .get(`${baseApi}/auth`, {
           headers: {
@@ -28,6 +37,7 @@ export default function AuthPage() {
           },
         })
         .then((res) => res.data);
+      console.log(res.url);
       router.push(res.url);
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -57,6 +67,25 @@ export default function AuthPage() {
       setMessage(
         "Sorry, you have been redirected because you are not authorized."
       );
+    }
+
+    const storeCookies = async (token: any, admin: any) => {
+      await storeTokenCookies(token);
+      await storeAdminCookies(admin);
+
+      router.push("/dashboard");
+    };
+
+    const accessToken = searchParams.get("access_token");
+    const refreshToken = searchParams.get("refresh_token");
+    const adminData = searchParams.get("admin_data");
+    if (accessToken && refreshToken && adminData) {
+      setLoading(true);
+      const token = {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      };
+      storeCookies(token, JSON.stringify(adminData));
     }
   }, []);
 
@@ -93,6 +122,7 @@ export default function AuthPage() {
 
   return (
     <div className="w-full h-screen flex justify-center items-center">
+      {loading && <Spinner />}
       <Button
         onClick={handleClick}
         variant="secondary"

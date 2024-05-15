@@ -24,6 +24,7 @@ import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
 import Image from "next/image";
+import { storeTokenCookies } from "@/lib/utils";
 
 const clinicSchema = z.object({
   name: z
@@ -80,6 +81,7 @@ export function EditForm({ id, setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -95,7 +97,7 @@ export function EditForm({ id, setOpen }: any) {
         const res = await axios
           .get(`${adminApi}/clinics/${id}`)
           .then((res) => res.data);
-
+        await storeTokenCookies(res.token);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -108,6 +110,7 @@ export function EditForm({ id, setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return error;
         } else {
           console.log("Unknown Error:", error);
@@ -212,6 +215,7 @@ export function EditForm({ id, setOpen }: any) {
       };
       console.log(data);
       const res = await mutation.mutateAsync(data);
+      await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
         form.reset();
@@ -220,11 +224,6 @@ export function EditForm({ id, setOpen }: any) {
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",

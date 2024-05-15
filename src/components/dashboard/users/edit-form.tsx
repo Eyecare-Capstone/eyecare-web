@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteCookie } from "@/lib/actions";
 import { getStatusText } from "http-status-codes";
+import { storeTokenCookies } from "@/lib/utils";
 
 const userSchema = z.object({
   username: z.string().min(2, {
@@ -51,9 +52,17 @@ export function EditForm({ id, setOpen }: any) {
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError.response?.data;
+          const axiosError = error as AxiosError<any>;
+          const res: any = axiosError.response?.data;
+          console.log(res);
+          if (res.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res.status}&message=${res.message}"`);
+          }
+          await storeTokenCookies(res.token);
+          console.log(error);
         } else {
           console.log("Unknown Error:", error);
         }
@@ -68,7 +77,7 @@ export function EditForm({ id, setOpen }: any) {
         const res = await axios
           .get(`${adminApi}/users/${id}`)
           .then((res) => res.data);
-
+        await storeTokenCookies(res.token);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -81,6 +90,7 @@ export function EditForm({ id, setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -125,6 +135,7 @@ export function EditForm({ id, setOpen }: any) {
         avatar: values.avatar,
       };
       const res = await mutation.mutateAsync(data);
+      await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
         form.reset();
@@ -133,11 +144,6 @@ export function EditForm({ id, setOpen }: any) {
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",

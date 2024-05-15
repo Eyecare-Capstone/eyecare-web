@@ -24,6 +24,7 @@ import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
 import { useEffect, useState } from "react";
+import { storeTokenCookies } from "@/lib/utils";
 
 const clinicSchema = z.object({
   name: z
@@ -88,6 +89,7 @@ export function AddForm({ setOpen }: any) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError<any>;
           const res = axiosError.response?.data;
+
           console.log(res);
           if (res?.status == 401) {
             await deleteCookie("admin_data");
@@ -95,6 +97,7 @@ export function AddForm({ setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -145,6 +148,7 @@ export function AddForm({ setOpen }: any) {
       newDoctorFormData.append("schedule", JSON.stringify(schedule));
 
       const res = await mutation.mutateAsync(newDoctorFormData);
+      await storeTokenCookies(res.token);
 
       setOpen(false);
 

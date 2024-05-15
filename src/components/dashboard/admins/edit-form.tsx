@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { deleteCookie } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import { storeTokenCookies } from "@/lib/utils";
 
 const adminSchema = z.object({
   email: z.string().email({
@@ -47,8 +48,15 @@ export function EditForm({ id, setOpen }: any) {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError.response?.data;
+          const res = axiosError.response?.data;
+          console.log(res);
+          if (res.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res.status}&message=${res.message}"`);
+          }
+          await storeTokenCookies(res.token);
         } else {
           console.log("Unknown Error:", error);
         }
@@ -63,7 +71,7 @@ export function EditForm({ id, setOpen }: any) {
         const res = await axios
           .get(`${adminApi}/admins/${id}`)
           .then((res) => res.data);
-
+        await storeTokenCookies(res.token);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -76,6 +84,7 @@ export function EditForm({ id, setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -112,6 +121,7 @@ export function EditForm({ id, setOpen }: any) {
         email: values.email,
       };
       const res = await mutation.mutateAsync(data);
+      await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
         form.reset();
@@ -120,11 +130,6 @@ export function EditForm({ id, setOpen }: any) {
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",

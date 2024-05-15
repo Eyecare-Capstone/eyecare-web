@@ -23,6 +23,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
 import { getStatusText } from "http-status-codes";
+import { storeTokenCookies } from "@/lib/utils";
 
 const userSchema = z.object({
   username: z.string().min(2, {
@@ -55,6 +56,7 @@ export function AddForm({ setOpen }: any) {
         const res = await axios
           .post(`${adminApi}/users`, newUser)
           .then((res) => res.data);
+        await storeTokenCookies(res.token);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -67,6 +69,7 @@ export function AddForm({ setOpen }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -84,6 +87,7 @@ export function AddForm({ setOpen }: any) {
         avatar: values.avatar,
       };
       const res = await mutation.mutateAsync(data);
+      await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
         form.reset();
@@ -92,11 +96,6 @@ export function AddForm({ setOpen }: any) {
           title: `${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",

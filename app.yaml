@@ -1,0 +1,12 @@
+handlers:
+  # Menangani permintaan untuk file yang ada di folder /public
+  - url: /public
+    static_dir: public
+
+  # Menangani permintaan untuk file yang ada di folder /static
+  - url: /static
+    static_dir: .next/static
+
+  # Menangani semua permintaan yang tidak cocok dengan handler di atas dan meneruskannya ke aplikasi
+  - url: /.*
+    script: auto

@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { deleteCookie } from "@/lib/actions";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { storeTokenCookies } from "@/lib/utils";
 
 export function DeleteDialog({ id }: any) {
   const adminAPI = process.env.NEXT_PUBLIC_ADMIN_API;
@@ -43,6 +44,7 @@ export function DeleteDialog({ id }: any) {
             await deleteCookie("refresh_token");
             router.push(`/auth?status=${res?.status}&message=${res?.message}"`);
           }
+          await storeTokenCookies(res.token);
           return axiosError;
         } else {
           console.log("Unknown Error:", error);
@@ -54,18 +56,13 @@ export function DeleteDialog({ id }: any) {
   const handleDelete = async (id: any) => {
     try {
       const res = await mutation.mutateAsync(id);
-
+      await storeTokenCookies(res.token);
       if (res.status == 200) {
         queryClient.refetchQueries({ queryKey: ["user"] });
         toast({
           title: ` ${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",

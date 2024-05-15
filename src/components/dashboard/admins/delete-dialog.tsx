@@ -18,6 +18,7 @@ import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
 import { deleteCookie } from "@/lib/actions";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { storeTokenCookies } from "@/lib/utils";
 
 export function DeleteDialog({ id }: any) {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
@@ -35,8 +36,15 @@ export function DeleteDialog({ id }: any) {
       } catch (error) {
         if (axios.isAxiosError(error)) {
           const axiosError = error as AxiosError;
-          console.log(axiosError.response);
-          return axiosError.response?.data;
+          const res: any = axiosError.response?.data;
+          console.log(res);
+          if (res.status == 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res.status}&message=${res.message}"`);
+          }
+          await storeTokenCookies(res.token);
         } else {
           console.log("Unknown Error:", error);
         }
@@ -47,18 +55,13 @@ export function DeleteDialog({ id }: any) {
   const handleDelete = async (id: any) => {
     try {
       const res = await mutation.mutateAsync(id);
-
+      await storeTokenCookies(res.token);
       if (res.status == 200) {
         queryClient.refetchQueries({ queryKey: ["admin"] });
         toast({
           title: ` ${getStatusText(res.status)} : ${res.status}`,
           description: `${res.message}`,
         });
-      } else if (res.status == 401) {
-        await deleteCookie("admin_data");
-        await deleteCookie("access_token");
-        await deleteCookie("refresh_token");
-        router.push(`/auth?status=${res.status}&message=${res.message}"`);
       } else {
         toast({
           variant: "destructive",
