@@ -129,7 +129,7 @@ export default function DetailArticlePage({
               src={article?.titleImage}
               width={300}
               height={300}
-              className="w-[500px] md:w-[600px] lg:w-[800px] h-[250px] md:h-[300px] lg:h-[400px] object-cover rounded-md center mb-5"
+              className="w-[500px] md:w-[600px] lg:w-[800px] h-[300px] lg:h-[400px] object-cover rounded-md center mb-5"
               priority
               alt="title image"
             />
@@ -137,9 +137,9 @@ export default function DetailArticlePage({
             <p className="text-base text-center text-lpYellow capitalize">
               {new Date(article?.publishedAt).toDateString()}
             </p>
-            <hr className="bg-lpYellow mb-2  h-[4px]" />
+            <hr className="bg-lpYellow mb-2 h-[4px]" />
 
-            <div className="mt-6 mb-12 text-base md:text-lg lg:text-xl text-white prose prose-headings:font-bold prose-img:m-0 prose-headings:m-0 prose-headings:mb-2 prose-headings:text-white prose-headings:text-xl md:prose-headings:text-2xl lg:prose-headings:text-4xl prose-li:marker:text-lpYellow  prose-li:list-disc prose-li:leading-7 prose-li:ml-4">
+            <div className="mt-6 mb-12 text-base md:text-lg lg:text-xl text-white prose prose-li:text-white prose-li:font-medium prose-headings:font-bold prose-img:m-0 prose-headings:m-0 prose-headings:mb-2 prose-headings:text-white prose-headings:text-xl md:prose-headings:text-2xl lg:prose-headings:text-4xl prose-li:marker:text-lpYellow  prose-li:list-disc prose-li:leading-7 prose-li:ml-4">
               <PortableText
                 value={article?.content}
                 components={myPortableTextComponents}
@@ -178,7 +178,7 @@ const myPortableTextComponents = {
         alt="image"
         width={200}
         height={200}
-        className="w-[500px] md:w-[600px] lg:w-[800px] h-[250px] md:h-[300px] lg:h-[350px] object-cover rounded-sm"
+        className="w-[500px] md:w-[600px] lg:w-[800px] h-[300px] lg:h-[350px] object-cover rounded-sm"
       />
     ),
   },

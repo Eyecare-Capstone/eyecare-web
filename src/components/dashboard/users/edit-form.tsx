@@ -46,14 +46,27 @@ export function EditForm({ id, setOpen }: any) {
   const [refreshTokenData, setRefreshTokenData] = useState("");
 
   useEffect(() => {
-    const fetchToken = async () => {
-      const { accessToken, refreshToken } = (await getToken()) || {};
-      setAccessTokenData(accessToken!);
-      setRefreshTokenData(refreshToken!);
-      setIsEnable(true);
+    const fetchData = async () => {
+      try {
+        const tokens = await getToken();
+        if (tokens) {
+          const { accessToken, refreshToken } = tokens;
+          setAccessTokenData(accessToken || "");
+          setRefreshTokenData(refreshToken || "");
+
+          // Log the tokens directly after fetching
+          // console.log("Fetched Access Token:", accessToken);
+          // console.log("Fetched Refresh Token:", refreshToken);
+        } else {
+          console.log("No tokens found");
+        }
+        setIsEnable(true);
+      } catch (error) {
+        console.error("Failed to fetch:", error);
+      }
     };
 
-    fetchToken();
+    fetchData();
   }, []);
 
   const mutation = useMutation({

@@ -61,15 +61,38 @@ export function EditForm({ id, setOpen }: any) {
   const [accessTokenData, setAccessTokenData] = useState("");
   const [refreshTokenData, setRefreshTokenData] = useState("");
 
+  // useEffect(() => {
+  //   console.log("Access Token State Changed:", accessTokenData);
+  // }, [accessTokenData]);
+
+  // useEffect(() => {
+  //   if (refreshTokenData) {
+  //     console.log("Refresh Token State Changed:", refreshTokenData);
+  //   }
+  // }, [refreshTokenData]);
+
   useEffect(() => {
-    const fetchToken = async () => {
-      const { accessToken, refreshToken } = (await getToken()) || {};
-      setAccessTokenData(accessToken!);
-      setRefreshTokenData(refreshToken!);
-      setIsEnable(true);
+    const fetchData = async () => {
+      try {
+        const tokens = await getToken();
+        if (tokens) {
+          const { accessToken, refreshToken } = tokens;
+          setAccessTokenData(accessToken || "");
+          setRefreshTokenData(refreshToken || "");
+
+          // Log the tokens directly after fetching
+          // console.log("Fetched Access Token:", accessToken);
+          // console.log("Fetched Refresh Token:", refreshToken);
+        } else {
+          console.log("No tokens found");
+        }
+        setIsEnable(true);
+      } catch (error) {
+        console.error("Failed to fetch:", error);
+      }
     };
 
-    fetchToken();
+    fetchData();
   }, []);
 
   const mutation = useMutation({
@@ -112,7 +135,13 @@ export function EditForm({ id, setOpen }: any) {
     queryFn: async () => {
       try {
         const res = await axios
-          .get(`${adminApi}/clinics/${id}`)
+          .get(`${adminApi}/clinics/${id}`, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         await storeTokenCookies(res.token);
         return res.data;
