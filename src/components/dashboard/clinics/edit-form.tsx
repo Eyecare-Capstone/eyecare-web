@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import Image from "next/image";
 import { storeTokenCookies } from "@/lib/utils";
 
@@ -57,6 +57,20 @@ export function EditForm({ id, setOpen }: any) {
   const [picture, setPicture] = useState("");
   const [file, setFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [isEnable, setIsEnable] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+      setIsEnable(true);
+    };
+
+    fetchToken();
+  }, []);
 
   const mutation = useMutation({
     mutationKey: [`${id}`],
@@ -66,6 +80,8 @@ export function EditForm({ id, setOpen }: any) {
           .put(`${adminApi}/clinics/${id}`, updatedClinic, {
             headers: {
               "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
             },
           })
           .then((res) => res.data);
@@ -92,6 +108,7 @@ export function EditForm({ id, setOpen }: any) {
 
   const { data, isLoading, isError } = useQuery<any>({
     queryKey: [`${id}`],
+    enabled: isEnable,
     queryFn: async () => {
       try {
         const res = await axios

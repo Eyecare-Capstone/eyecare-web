@@ -19,8 +19,8 @@ export async function PUT(req: Request) {
     if (API_KEY == requestKey) {
       const { accessToken, refreshToken } = await req.json();
 
-      const accessTokenCookie = `access_token=${accessToken}; SameSite=Lax; HttpOnly=false; Secure=false; Max-Age=2592000`;
-      const refreshTokenCookie = `refresh_token=${refreshToken}; SameSite=Lax; HttpOnly=false; Secure=false; Max-Age=2592000`;
+      const accessTokenCookie = `access_token=${accessToken}; SameSite=None; HttpOnly=false; Secure=true; Max-Age=2592000`;
+      const refreshTokenCookie = `refresh_token=${refreshToken}; SameSite=None; HttpOnly=false; Secure=true; Max-Age=2592000`;
 
       const headers = new Headers();
       headers.append("Set-Cookie", accessTokenCookie);
@@ -56,7 +56,7 @@ export async function POST(req: Request) {
 
       const adminDataCookie = `admin_data=${encodeURIComponent(
         adminData
-      )}; SameSite=Lax; HttpOnly=false; Secure=false; Max-Age=2592000`;
+      )}; SameSite=None; HttpOnly=false; Secure=true; Max-Age=2592000`;
 
       const headers = new Headers();
       headers.append("Set-Cookie", adminDataCookie);

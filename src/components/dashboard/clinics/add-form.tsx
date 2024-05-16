@@ -22,7 +22,7 @@ import { Spinner } from "../../common/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { useEffect, useState } from "react";
 import { storeTokenCookies } from "@/lib/utils";
 
@@ -53,6 +53,18 @@ export function AddForm({ setOpen }: any) {
   const router = useRouter();
   const [file, setFile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+    };
+
+    fetchToken();
+  }, []);
 
   const form = useForm<z.infer<typeof clinicSchema>>({
     resolver: zodResolver(clinicSchema),
@@ -82,6 +94,8 @@ export function AddForm({ setOpen }: any) {
         const res = await axios.post(`${adminApi}/clinics`, newClinic, {
           headers: {
             "Content-Type": `multipart/form-data`,
+            Authorization: `Bearer ${accessTokenData}`,
+            "x-refresh-token": `${refreshTokenData}`,
           },
         });
         return res.data;

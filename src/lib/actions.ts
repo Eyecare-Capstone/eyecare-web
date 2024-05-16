@@ -21,9 +21,10 @@ export async function deleteCookie(name: string) {
 export async function getToken() {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
+    const accessToken = cookieStore.get("access_token")?.value;
+    const refreshToken = cookieStore.get("refresh_token")?.value;
 
-    return token;
+    return { accessToken, refreshToken };
   } catch (error) {
     console.error("Error fetching tokens:", error);
     return null; // Return null for error handling

@@ -18,10 +18,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/common/spinner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 import { storeTokenCookies } from "@/lib/utils";
 
@@ -36,19 +36,38 @@ export function EditForm({ id, setOpen }: any) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+  const [isEnable, setIsEnable] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+      setIsEnable(true);
+    };
+
+    fetchToken();
+  }, []);
 
   const mutation = useMutation({
     mutationKey: [`${id}`],
     mutationFn: async (updatedAdmin: any) => {
       try {
         const res = await axios
-          .put(`${adminApi}/admins/${id}`, updatedAdmin)
+          .put(`${adminApi}/admins/${id}`, updatedAdmin, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          const res = axiosError.response?.data;
+          const axiosError = error as AxiosError<any>;
+          const res: any = axiosError.response?.data;
           console.log(res);
           if (res.status == 401) {
             await deleteCookie("admin_data");
@@ -66,6 +85,7 @@ export function EditForm({ id, setOpen }: any) {
 
   const { data, isLoading, isError } = useQuery<any>({
     queryKey: [`${id}`],
+    enabled: isEnable,
     queryFn: async () => {
       try {
         const res = await axios

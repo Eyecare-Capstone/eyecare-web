@@ -23,7 +23,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (loading) {
-      setTimeout(() => setLoading(false), 2000);
+      setTimeout(() => setLoading(false), 3000);
     }
   }, [loading]);
 

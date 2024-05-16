@@ -19,10 +19,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "../../common/spinner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { getStatusText } from "http-status-codes";
 import { storeTokenCookies } from "@/lib/utils";
 
@@ -41,13 +41,32 @@ export function EditForm({ id, setOpen }: any) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+  const [isEnable, setIsEnable] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+      setIsEnable(true);
+    };
+
+    fetchToken();
+  }, []);
 
   const mutation = useMutation({
     mutationKey: [`${id}`],
     mutationFn: async (updatedUser: any) => {
       try {
         const res = await axios
-          .put(`${adminApi}/users/${id}`, updatedUser)
+          .put(`${adminApi}/users/${id}`, updatedUser, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         return res;
       } catch (error) {
@@ -72,10 +91,16 @@ export function EditForm({ id, setOpen }: any) {
 
   const { data, isLoading, isError } = useQuery<any>({
     queryKey: [`${id}`],
+    enabled: isEnable,
     queryFn: async () => {
       try {
         const res = await axios
-          .get(`${adminApi}/users/${id}`)
+          .get(`${adminApi}/users/${id}`, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         await storeTokenCookies(res.token);
         return res.data;

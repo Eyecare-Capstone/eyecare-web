@@ -16,21 +16,39 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { storeTokenCookies } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 export function DeleteDialog({ id }: any) {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const router = useRouter();
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+    };
+
+    fetchToken();
+  }, []);
 
   const mutation = useMutation({
     mutationFn: async (id: any) => {
       try {
         const res = await axios
-          .delete(`${adminApi}/admins/${id as string}`)
+          .delete(`${adminApi}/admins/${id as string}`, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         return res;
       } catch (error) {

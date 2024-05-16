@@ -11,13 +11,14 @@ import { TfiMoreAlt } from "react-icons/tfi";
 import { RxAvatar } from "react-icons/rx";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getSession } from "@/lib/actions";
+import { deleteCookie, getSession, getToken } from "@/lib/actions";
 import axios, { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { Spinner } from "../common/spinner";
 import Image from "next/image";
+import { storeTokenCookies } from "@/lib/utils";
 
 interface Admin {
   name: string;
@@ -30,6 +31,18 @@ export const UserMenu = () => {
   const { toast } = useToast();
   const [pictureUrl, setPictureUrl] = useState("");
   const [loading, setLoading] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+    };
+
+    fetchToken();
+  }, []);
 
   const [admin, setAdmin] = useState("");
 
@@ -55,7 +68,12 @@ export const UserMenu = () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios
-          .post(`${baseApi}/logout`)
+          .post(`${baseApi}/logout`, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         return res;
       } catch (error) {
@@ -99,6 +117,10 @@ export const UserMenu = () => {
       router.push(`/auth?status=${res.status}&message=${res.message}"`);
     } else {
       console.log(res);
+      await deleteCookie("admin_data");
+      await deleteCookie("access_token");
+      await deleteCookie("refresh_token");
+      router.push(`/auth?status=${res.status}&message=${res.message}"`);
     }
   };
 

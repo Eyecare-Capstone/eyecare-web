@@ -7,6 +7,17 @@ const nextConfig = {
       "lh3.googleusercontent.com",
     ],
   },
+  crossOrigin: false,
 };
 
+// images: {
+//   remotePatterns: [
+//     {
+//       protocol: 'https',
+//       hostname: 'example.com',
+//       port: '',
+//       pathname: '/account123/**',
+//     },
+//   ],
+// },
 export default nextConfig;

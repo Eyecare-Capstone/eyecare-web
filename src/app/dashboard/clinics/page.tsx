@@ -4,26 +4,46 @@ import { columns } from "./columns";
 import { DataTable } from "@/components/common/data-table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import loadingImg from "../../../../public/loading.svg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { storeTokenCookies } from "@/lib/utils";
 
 export default function ClinicsPage() {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
   const router = useRouter();
+  const [isEnable, setIsEnable] = useState(false);
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+      setIsEnable(true);
+    };
+
+    fetchToken();
+  }, []);
 
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery<any>({
     queryKey: ["clinic"],
+    enabled: isEnable,
     queryFn: async () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios
-          .get(`${adminApi}/clinics`)
+          .get(`${adminApi}/clinics`, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         await storeTokenCookies(res.token);
         return res.data;

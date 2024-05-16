@@ -21,9 +21,10 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "../../common/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { deleteCookie } from "@/lib/actions";
+import { deleteCookie, getToken } from "@/lib/actions";
 import { getStatusText } from "http-status-codes";
 import { storeTokenCookies } from "@/lib/utils";
+import { useEffect, useState } from "react";
 
 const userSchema = z.object({
   username: z.string().min(2, {
@@ -40,6 +41,18 @@ export function AddForm({ setOpen }: any) {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [accessTokenData, setAccessTokenData] = useState("");
+  const [refreshTokenData, setRefreshTokenData] = useState("");
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const { accessToken, refreshToken } = (await getToken()) || {};
+      setAccessTokenData(accessToken!);
+      setRefreshTokenData(refreshToken!);
+    };
+
+    fetchToken();
+  }, []);
 
   const form = useForm<z.infer<typeof userSchema>>({
     resolver: zodResolver(userSchema),
@@ -54,7 +67,12 @@ export function AddForm({ setOpen }: any) {
     mutationFn: async (newUser: any) => {
       try {
         const res = await axios
-          .post(`${adminApi}/users`, newUser)
+          .post(`${adminApi}/users`, newUser, {
+            headers: {
+              Authorization: `Bearer ${accessTokenData}`,
+              "x-refresh-token": `${refreshTokenData}`,
+            },
+          })
           .then((res) => res.data);
         await storeTokenCookies(res.token);
         return res;
