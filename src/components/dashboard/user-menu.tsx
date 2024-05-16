@@ -5,11 +5,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar } from "../ui/avatar";
 import { HiOutlineLogout } from "react-icons/hi";
 import { TfiMoreAlt } from "react-icons/tfi";
 import { RxAvatar } from "react-icons/rx";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deleteCookie, getSession, getToken } from "@/lib/actions";
 import axios, { AxiosError } from "axios";
@@ -18,7 +18,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { getStatusText } from "http-status-codes";
 import { Spinner } from "../common/spinner";
 import Image from "next/image";
-import { storeTokenCookies } from "@/lib/utils";
 
 interface Admin {
   name: string;
@@ -33,53 +32,92 @@ export const UserMenu = () => {
   const [loading, setLoading] = useState(false);
   const [accessTokenData, setAccessTokenData] = useState("");
   const [refreshTokenData, setRefreshTokenData] = useState("");
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      const { accessToken, refreshToken } = (await getToken()) || {};
-      setAccessTokenData(accessToken!);
-      setRefreshTokenData(refreshToken!);
-    };
-
-    fetchToken();
-  }, []);
-
   const [admin, setAdmin] = useState("");
 
-  useEffect(() => {
-    if (loading) {
-      setTimeout(() => setLoading(false), 1000);
-    }
-  }, [loading]);
+  // useEffect(() => {
+  //   console.log("Access Token State Changed:", accessTokenData);
+  // }, [accessTokenData]);
+
+  // useEffect(() => {
+  //   if (refreshTokenData) {
+  //     console.log("Refresh Token State Changed:", refreshTokenData);
+  //   }
+  // }, [refreshTokenData]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { name, picture } = await getSession();
-      setAdmin(name);
-      setPictureUrl(picture);
-      setLoading(true);
+      try {
+        const { name, picture } = await getSession();
+        setAdmin(name);
+        setPictureUrl(picture);
+
+        const tokens = await getToken();
+        if (tokens) {
+          const { accessToken, refreshToken } = tokens;
+          setAccessTokenData(accessToken || "");
+          setRefreshTokenData(refreshToken || "");
+
+          // Log the tokens directly after fetching
+          // console.log("Fetched Access Token:", accessToken);
+          // console.log("Fetched Refresh Token:", refreshToken);
+        } else {
+          console.log("No tokens found");
+        }
+        setLoading(true);
+      } catch (error) {
+        console.error("Failed to fetch:", error);
+      }
     };
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (loading) {
+      setTimeout(() => setLoading(false), 2000);
+    }
+  }, [loading]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       try {
         axios.defaults.withCredentials = true;
         const res = await axios
-          .post(`${baseApi}/logout`, {
-            headers: {
-              Authorization: `Bearer ${accessTokenData}`,
-              "x-refresh-token": `${refreshTokenData}`,
-            },
-          })
+          .post(
+            `${baseApi}/logout`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${accessTokenData}`,
+                "x-refresh-token": `${refreshTokenData}`,
+              },
+            }
+          )
           .then((res) => res.data);
+        console.log("Logout Response:", res);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const axiosError = error as AxiosError;
-          return axiosError.response?.data;
+          const axiosError = error as AxiosError<any>;
+          const res = axiosError.response?.data;
+          console.log("Logout Error Response:", res);
+          if (res.status === 401) {
+            await deleteCookie("admin_data");
+            await deleteCookie("access_token");
+            await deleteCookie("refresh_token");
+            router.push(`/auth?status=${res.status}&message=${res.message}`);
+          }
+          if (res.status === 400 || res.status === 500) {
+            router.push(
+              `/dashboard?status=${res.status}&message=${res.message}`
+            );
+            toast({
+              variant: "destructive",
+              title: `${getStatusText(res.status)} : ${res.status}`,
+              description: `${res.message}`,
+            });
+          }
+          return null;
         } else {
           console.log("Unknown Error:", error);
         }
@@ -91,36 +129,16 @@ export const UserMenu = () => {
     setLoading(true);
     const res = await mutation.mutateAsync();
 
-    if (!res) {
-      console.log("Internal Server Error");
-    }
-    if (res.status == 401) {
+    if (res?.status === 200) {
       await deleteCookie("admin_data");
       await deleteCookie("access_token");
       await deleteCookie("refresh_token");
-      router.push(`/auth?status=${res.status}&message=${res.message}"`);
-    }
-
-    if (res.status == 400 || res.status == 500) {
-      router.push(`/dashboard?status=${res.status}&message=${res.message}"`);
-      toast({
-        variant: "destructive",
-        title: `${getStatusText(res.status)} : ${res.status}`,
-        description: `${res.message}`,
-      });
-    }
-
-    if (res.status == 200) {
-      await deleteCookie("admin_data");
-      await deleteCookie("access_token");
-      await deleteCookie("refresh_token");
-      router.push(`/auth?status=${res.status}&message=${res.message}"`);
+      router.push(`/auth?status=${res.status}&message=${res.message}`);
     } else {
-      console.log(res);
       await deleteCookie("admin_data");
       await deleteCookie("access_token");
       await deleteCookie("refresh_token");
-      router.push(`/auth?status=${res.status}&message=${res.message}"`);
+      router.push(`/auth?status=${res?.status}&message=${res?.message}`);
     }
   };
 
