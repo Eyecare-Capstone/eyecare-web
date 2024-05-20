@@ -21,8 +21,10 @@ export default function UsersPage() {
 
   useEffect(() => {
     const fetcData = async () => {
-      const statusData = localStorage.getItem("status");
-      setStatus(statusData ? statusData : "all");
+      if (typeof window !== "undefined") {
+        const statusData = localStorage.getItem("status");
+        setStatus(statusData ? statusData : "all");
+      }
       const { accessToken, refreshToken } = (await getToken()) || {};
       setAccessTokenData(accessToken!);
       setRefreshTokenData(refreshToken!);

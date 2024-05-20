@@ -92,7 +92,11 @@ export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "status",
     header: () => {
-      const status = localStorage.getItem("status");
+      let status = "all";
+      if (typeof window !== "undefined") {
+        const storedStatus = localStorage.getItem("status");
+        status = storedStatus ? storedStatus : "all";
+      }
 
       return (
         <Select
