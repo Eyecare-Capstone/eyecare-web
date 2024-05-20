@@ -14,7 +14,7 @@ export function ScheduleDropdown({ schedule }: any) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">See schedule 📆</Button>
+        <Button variant="secondary">See schedule 📆</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80">
         <DropdownMenuLabel>

@@ -27,10 +27,10 @@ export function ArticleCard({
     <Card className="mt-6 sm:mt-8 lg:mt-10 w-8/12 sm:w-8/12 md:w-8/12 lg:w-8/12 max-w-[800px] h-40 sm:h-44 md:h-60 lg:h-64 flex gap-1 border-2 border-lpYellow/75">
       <Image
         src={titleImage}
-        width={450}
+        width={500}
         height={450}
         alt="hero image"
-        className="w-5/12  rounded-l-sm object-cover"
+        className="w-5/12 h-auto rounded-l-sm object-cover"
         priority
       />
       <div className="w-full flex flex-col gap-1  justify-between">

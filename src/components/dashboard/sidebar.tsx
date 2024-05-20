@@ -18,6 +18,7 @@ export const Sidebar = () => {
           width={150}
           height={150}
           className="w-auto h-auto"
+          priority
         />
         <h3 className="mx-3 my-7 te xt-lg font-semibold text-foreground">
           Admin Page

@@ -1,5 +1,14 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { Rule } from "sanity";
+import sanityClient from "@sanity/client";
+
+// Konfigurasi Sanity Client
+const client = sanityClient({
+  projectId: "t8sl2x8b",
+  dataset: "production",
+  apiVersion: "2024-04-20",
+  useCdn: true,
+});
 
 export default {
   name: "blog",
@@ -52,7 +61,7 @@ export default {
       options: {
         dateFormat: "DD MMM YYYY",
       },
-      validation: (Rule: any) => Rule.required(),
+      validation: (Rule: Rule) => Rule.required(),
     },
     {
       name: "description",
@@ -76,6 +85,29 @@ export default {
         {
           type: "image",
           fields: [{ type: "text", name: "alt", title: "Alt" }],
+          options: {
+            hotspot: true,
+          },
+          validation: (Rule: Rule) =>
+            Rule.custom(async (image: any) => {
+              if (!image || !image.asset) {
+                return true; // Allow empty images
+              }
+
+              // const filetype = getExtension(image.asset._ref);
+
+              // if (filetype !== "jpg" && filetype !== "png") {
+              //   return "Image must be a JPG or PNG";
+              // }
+
+              const asset = await client.getDocument(image.asset._ref);
+              if (asset && asset.size) {
+                return asset.size <= 300 * 1024
+                  ? true
+                  : "Image size should not exceed 300kb";
+              }
+              return "Invalid image";
+            }),
         },
       ],
     },

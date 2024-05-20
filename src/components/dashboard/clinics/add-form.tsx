@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { deleteCookie, getToken } from "@/lib/actions";
 import { useEffect, useState } from "react";
 import { storeTokenCookies } from "@/lib/utils";
+import Image from "next/image";
 
 const clinicSchema = z.object({
   name: z
@@ -52,6 +53,7 @@ export function AddForm({ setOpen }: any) {
   const { toast } = useToast();
   const router = useRouter();
   const [file, setFile] = useState<any>(null);
+  const [picture, setPicture] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [accessTokenData, setAccessTokenData] = useState("");
   const [refreshTokenData, setRefreshTokenData] = useState("");
@@ -98,6 +100,7 @@ export function AddForm({ setOpen }: any) {
             "x-refresh-token": `${refreshTokenData}`,
           },
         });
+        // console.log("103", res);
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -123,9 +126,21 @@ export function AddForm({ setOpen }: any) {
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
+    const reader = new FileReader();
+
     if (selectedFile) {
       setFile(selectedFile);
+      reader.readAsDataURL(selectedFile);
     }
+
+    reader.onloadend = async () => {
+      try {
+        const imageData = reader.result as string;
+        setPicture(imageData);
+      } catch (e) {
+        console.log(e);
+      }
+    };
   };
 
   useEffect(() => {
@@ -204,7 +219,7 @@ export function AddForm({ setOpen }: any) {
         className="mt-3 space-y-6 w-full  h-full flex flex-col "
         encType="multipart/form-data"
       >
-        {/* name picture */}
+        {/* name  */}
         <div className="flex flex-row justify-center items-center gap-10 p-2">
           <FormField
             control={form.control}
@@ -224,26 +239,60 @@ export function AddForm({ setOpen }: any) {
               </FormItem>
             )}
           />
+        </div>
 
-          <FormField
-            control={form.control}
-            name="picture"
-            render={({ field }) => (
-              <FormItem className="flex-1 flex flex-col  items-start">
-                <FormLabel>Picture</FormLabel>
-                <FormControl className="text-white/65 ">
-                  <input
-                    type="file"
-                    required
-                    accept=".jpg, .jpeg, .png"
-                    onChange={handleFileChange}
-                  />
-                </FormControl>
-                <FormDescription>Clinic's display picture.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* picture */}
+        <div className="flex flex-row justify-center items-center gap-10  h-72 px-3">
+          {!picture && (
+            <FormField
+              control={form.control}
+              name="picture"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex flex-col  items-start">
+                  <FormLabel>Picture</FormLabel>
+                  <FormControl className="text-white/65 ">
+                    <input
+                      type="file"
+                      required
+                      accept=".jpg, .jpeg, .png"
+                      onChange={handleFileChange}
+                    />
+                  </FormControl>
+                  <FormDescription>Clinic's display picture.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {picture && (
+            <div className="flex-1 h-auto flex flex-row justify-center items-center gap-10">
+              <div className="flex-1 w-full  items-start flex flex-col gap-3">
+                <FormLabel className="font-medium text-white ">
+                  Picture
+                </FormLabel>
+                <Image
+                  src={picture}
+                  alt="clinic image"
+                  width={100}
+                  height={100}
+                  className="object-cover h-auto w-full flex-1"
+                />
+              </div>
+              <div className=" flex-1 flex justify-center">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    setFile(null);
+                    setPicture(null);
+                  }}
+                >
+                  Change picture
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* province city */}

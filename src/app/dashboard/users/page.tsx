@@ -9,7 +9,7 @@ import loadingImg from "../../../../public/loading.svg";
 import Image from "next/image";
 import { deleteCookie, getToken } from "@/lib/actions";
 import { useRouter } from "next/navigation";
-import { storeTokenCookies } from "@/lib/utils";
+import { filterUsersData, storeTokenCookies } from "@/lib/utils";
 
 export default function UsersPage() {
   const adminApi = process.env.NEXT_PUBLIC_ADMIN_API;
@@ -17,16 +17,19 @@ export default function UsersPage() {
   const [isEnable, setIsEnable] = useState(false);
   const [accessTokenData, setAccessTokenData] = useState("");
   const [refreshTokenData, setRefreshTokenData] = useState("");
+  const [status, setStatus] = useState<any>("all");
 
   useEffect(() => {
-    const fetchToken = async () => {
+    const fetcData = async () => {
+      const statusData = localStorage.getItem("status");
+      setStatus(statusData ? statusData : "all");
       const { accessToken, refreshToken } = (await getToken()) || {};
       setAccessTokenData(accessToken!);
       setRefreshTokenData(refreshToken!);
       setIsEnable(true);
     };
 
-    fetchToken();
+    fetcData();
   }, []);
 
   const queryClient = useQueryClient();
@@ -46,6 +49,11 @@ export default function UsersPage() {
           })
           .then((res) => res.data);
         await storeTokenCookies(res.token);
+        // console.log(status);
+        if (status !== "all") {
+          const data = await filterUsersData(res.data, status);
+          return data;
+        }
         return res.data;
       } catch (error) {
         if (axios.isAxiosError(error)) {

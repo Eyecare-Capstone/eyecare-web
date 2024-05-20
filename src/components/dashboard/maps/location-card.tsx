@@ -18,7 +18,7 @@ export const LocationCard = ({ setUser }: any) => {
     setUser(user);
   };
   return (
-    <Card className="w-full">
+    <Card className="w-full ">
       <form onSubmit={handleSearch}>
         <CardHeader className="flex flex-row gap-2 items-center justify-between  p-0 pl-3 pr-3 py-2">
           <CardTitle className="text-base">Enter your location here</CardTitle>

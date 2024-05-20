@@ -33,7 +33,7 @@ export function AddDialog() {
           <span className="font-medium text-white">Add user</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[425px]">
+      <DialogContent className=" sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Add user</DialogTitle>
           <DialogDescription>

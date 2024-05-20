@@ -16,12 +16,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { EditDialog } from "@/components/dashboard/users/edit-dialog";
 import { DeleteDialog } from "@/components/dashboard/users/delete-dialog";
+import { IoIosRadioButtonOn } from "react-icons/io";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export type User = {
   id: String;
   username: String;
   email: String;
   avatar: String | undefined;
+  status: String | any;
 };
 export const columns: ColumnDef<User>[] = [
   {
@@ -80,10 +90,53 @@ export const columns: ColumnDef<User>[] = [
     ),
   },
   {
+    accessorKey: "status",
+    header: () => {
+      const status = localStorage.getItem("status");
+
+      return (
+        <Select
+          defaultValue={status ? status : "all"}
+          onValueChange={(value) => {
+            localStorage.setItem("status", value);
+            window.location.reload();
+          }}
+        >
+          <SelectTrigger className="w-28 border-0">
+            <SelectValue placeholder="Select status..." />
+          </SelectTrigger>
+          <SelectContent className="w-24">
+            <SelectGroup>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="deactive">Deactive</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      );
+    },
+    cell: ({ row }) => {
+      const user = row.original;
+      return (
+        <Button
+          className="capitalize text-xs rounded-md w-28 justify-start gap-1 items-center flex flex-row"
+          variant="outline"
+        >
+          <IoIosRadioButtonOn
+            className={`${
+              user.status == "active" ? "text-green-500" : "text-red-500"
+            } `}
+          />
+          {row.getValue("status")}
+        </Button>
+      );
+    },
+  },
+  {
     header: "Actions",
     id: "actions",
     cell: ({ row }) => {
-      const admin = row.original;
+      const user = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -93,7 +146,7 @@ export const columns: ColumnDef<User>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(admin.id as string)}
+              onClick={() => navigator.clipboard.writeText(user.id as string)}
               className="gap-1"
             >
               Copy User ID
@@ -101,10 +154,10 @@ export const columns: ColumnDef<User>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel className="gap-1">
-              <EditDialog id={admin.id as string} />
+              <EditDialog id={user.id as string} />
             </DropdownMenuLabel>
             <DropdownMenuLabel className="gap-1">
-              <DeleteDialog id={admin.id as string} />
+              <DeleteDialog id={user.id as string} />
             </DropdownMenuLabel>
           </DropdownMenuContent>
         </DropdownMenu>

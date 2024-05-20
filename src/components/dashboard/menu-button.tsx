@@ -30,11 +30,11 @@ export const MenuButton = () => {
       icon: <GrArticle size={20} />,
       text: "Articles",
     },
-    {
-      link: "/dashboard/maps",
-      icon: <GrMapLocation size={20} />,
-      text: "Maps",
-    },
+    // {
+    //   link: "/dashboard/maps",
+    //   icon: <GrMapLocation size={20} />,
+    //   text: "Maps",
+    // },
   ];
 
   return (

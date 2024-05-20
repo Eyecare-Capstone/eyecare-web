@@ -10,8 +10,16 @@ export const ClinicCard = ({ clinic }: any) => {
   const [currentClinic, setCurrentClinic] = useState(clinic);
 
   const getDirection = () => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${currentClinic.lat},${currentClinic.lon}`;
-    window.open(url, "_blank");
+    if (currentClinic && currentClinic.lat && currentClinic.lon) {
+      const lat = encodeURIComponent(currentClinic.lat);
+      const lon = encodeURIComponent(currentClinic.lon);
+      const url = `https://www.google.pl/maps/place/${lat},${lon}/@${lat},${lon},15z`;
+      // console.log("lat:", lat, "lon:", lon);
+      // console.log(url);
+      window.open(url, "_blank");
+    } else {
+      console.error("Invalid coordinates: ", currentClinic);
+    }
   };
 
   useEffect(() => {
@@ -19,10 +27,10 @@ export const ClinicCard = ({ clinic }: any) => {
   }, [clinic]);
 
   return (
-    <Card className="bg-blue-950 w-full h-[420px] flex flex-col">
+    <Card className="bg-secondary w-full h-[420px] flex flex-col ">
       {currentClinic ? (
         <>
-          <CardHeader className="p-0 h-44 mb-5">
+          <CardHeader className="p-0 h-44 mb-5 bg-card m-0">
             <Image
               src={currentClinic.picture}
               alt="picture"
@@ -31,9 +39,9 @@ export const ClinicCard = ({ clinic }: any) => {
               className="w-80 h-full rounded-t-sm  object-cover"
             />
           </CardHeader>
-          <CardContent className=" p-0 flex-1">
-            <div className="mb-3 py-2 px-4">
-              <div className="flex flex-row gap-2  mb-1 justify-between">
+          <CardContent className=" p-0 flex-1 bg-card flex flex-col ">
+            <div className="mb-3 py-2 px-4 flex-1 ">
+              <div className="flex flex-row gap-2 mt-3  mb-1 justify-between">
                 <CardTitle>{currentClinic.name}</CardTitle>
                 <p>{currentClinic.star}⭐</p>
               </div>
@@ -45,20 +53,19 @@ export const ClinicCard = ({ clinic }: any) => {
               </div>
 
               <div className="flex justify-center items-center">
-                <textarea
-                  rows={3}
-                  cols={30}
-                  readOnly
-                  value={currentClinic.address}
-                  className="bg-blue-950 text-white border border-white"
-                />
+                <p className="bg-card text-white/50 text-sm">
+                  {currentClinic.address}
+                </p>
               </div>
             </div>
 
-            <hr />
-            <div className="w-full flex justify-between px-2 py-1  gap-2">
+            <div className="w-full flex justify-between px-2 py-2  gap-2">
               <ScheduleDropdown schedule={currentClinic.schedule} />
-              <Button onClick={getDirection} className="font-bold">
+              <Button
+                onClick={getDirection}
+                className="font-bold"
+                variant="secondary"
+              >
                 Get Direction 📌
               </Button>
             </div>

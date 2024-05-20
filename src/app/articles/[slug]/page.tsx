@@ -49,6 +49,7 @@ export default function DetailArticlePage({
           .then((res) => res.data.data);
 
         setLanguage(res.language == "en" ? "English" : "Indonesia");
+        // console.log("52", res);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -127,11 +128,11 @@ export default function DetailArticlePage({
             </h1>
             <Image
               src={article?.titleImage}
-              width={300}
+              width={800}
               height={300}
-              className="w-[500px] md:w-[600px] lg:w-[800px] h-[300px] lg:h-[400px] object-cover rounded-md center mb-5"
-              priority
+              className="mx-auto w-[500px] md:w-[600px] lg:w-[800px] h-[200px] md:h-[250px] lg:h-[350px] object-cover rounded-md center mb-5"
               alt="title image"
+              priority
             />
 
             <p className="text-base text-center text-lpYellow capitalize">
@@ -139,7 +140,7 @@ export default function DetailArticlePage({
             </p>
             <hr className="bg-lpYellow mb-2 h-[4px]" />
 
-            <div className="mt-6 mb-12 text-base md:text-lg lg:text-xl text-white prose prose-li:text-white prose-li:font-medium prose-headings:font-bold prose-img:m-0 prose-headings:m-0 prose-headings:mb-2 prose-headings:text-white prose-headings:text-xl md:prose-headings:text-2xl lg:prose-headings:text-4xl prose-li:marker:text-lpYellow  prose-li:list-disc prose-li:leading-7 prose-li:ml-4">
+            <div className="mt-6 mb-12 prose-a:text-blue-500 text-base md:text-lg lg:text-xl text-white prose prose-li:text-white prose-li:font-medium prose-headings:font-bold prose-img:m-0 prose-headings:m-0 prose-headings:mb-2 prose-headings:text-white prose-headings:text-xl md:prose-headings:text-2xl lg:prose-headings:text-4xl prose-li:marker:text-lpYellow  prose-li:list-disc prose-li:leading-7 prose-li:ml-4">
               <PortableText
                 value={article?.content}
                 components={myPortableTextComponents}
@@ -175,10 +176,11 @@ const myPortableTextComponents = {
     image: ({ value }: any) => (
       <Image
         src={urlForImage(value)}
+        priority
         alt="image"
-        width={200}
-        height={200}
-        className="w-[500px] md:w-[600px] lg:w-[800px] h-[300px] lg:h-[350px] object-cover rounded-sm"
+        width={800}
+        height={300}
+        className="mx-auto w-[500px] md:w-[600px] lg:w-[800px] h-[200px] md:h-[250px] lg:h-[300px] object-cover rounded-sm"
       />
     ),
   },

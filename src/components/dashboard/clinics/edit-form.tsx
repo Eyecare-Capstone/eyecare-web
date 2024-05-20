@@ -39,7 +39,7 @@ const clinicSchema = z.object({
   lon: z.string().min(2, { message: "Required" }),
   lat: z.string().min(2, { message: "Required" }),
   address: z.string().trim().min(2, { message: "Required" }),
-  star: z.string().min(1, { message: "Required" }),
+  star: z.any(),
   monday: z.string().trim().optional(),
   tuesday: z.string().trim().optional(),
   wednesday: z.string().trim().optional(),
@@ -108,6 +108,7 @@ export function EditForm({ id, setOpen }: any) {
             },
           })
           .then((res) => res.data);
+        // console.log(res);
         return res;
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -137,7 +138,6 @@ export function EditForm({ id, setOpen }: any) {
         const res = await axios
           .get(`${adminApi}/clinics/${id}`, {
             headers: {
-              "Content-Type": "multipart/form-data",
               Authorization: `Bearer ${accessTokenData}`,
               "x-refresh-token": `${refreshTokenData}`,
             },
@@ -228,9 +228,21 @@ export function EditForm({ id, setOpen }: any) {
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
+    const reader = new FileReader();
+
     if (selectedFile) {
       setFile(selectedFile);
+      reader.readAsDataURL(selectedFile);
     }
+
+    reader.onloadend = async () => {
+      try {
+        const imageData = reader.result as string;
+        setPicture(imageData);
+      } catch (e) {
+        console.log(e);
+      }
+    };
   };
 
   useEffect(() => {
@@ -244,13 +256,9 @@ export function EditForm({ id, setOpen }: any) {
 
   const onSubmit = async (values: any) => {
     try {
-      const data = {
-        name: values.name,
-        picture: values.picture,
-        lon: values.lon,
-        lat: values.lat,
-        address: values.address,
-        star: values.star,
+      // console.log(values);
+
+      const schedule = {
         monday: values.monday,
         tuesday: values.tuesday,
         wednesday: values.wednesday,
@@ -259,8 +267,27 @@ export function EditForm({ id, setOpen }: any) {
         saturday: values.saturday,
         sunday: values.sunday,
       };
-      console.log(data);
-      const res = await mutation.mutateAsync(data);
+
+      // Add form fields to the FormData object
+      const newDoctorFormData = new FormData();
+      newDoctorFormData.append("name", values.name);
+      newDoctorFormData.append("province", values.province);
+      newDoctorFormData.append("city", values.city);
+      newDoctorFormData.append("lon", values.lon);
+      newDoctorFormData.append("lat", values.lat);
+      newDoctorFormData.append("address", values.address);
+      newDoctorFormData.append("star", values.star);
+      newDoctorFormData.append("schedule", JSON.stringify(schedule));
+
+      if (file) {
+        newDoctorFormData.append("file", file);
+        newDoctorFormData.append("pictureUrl", "");
+      } else {
+        newDoctorFormData.append("pictureUrl", picture);
+      }
+
+      const res = await mutation.mutateAsync(newDoctorFormData);
+      // console.log("277", res.token);
       await storeTokenCookies(res.token);
       setOpen(false);
       if (res.status == 200) {
@@ -319,41 +346,58 @@ export function EditForm({ id, setOpen }: any) {
           />
         </div>
 
-        {/*picture */}
-        <div className="flex flex-row justify-center items-center gap-10 p-2">
-          <div>
-            {picture !== "" ? (
-              <Image
-                src={picture}
-                alt="clinic picture"
-                width={200}
-                height={200}
-                className="w-auto h-auto"
-              />
-            ) : (
-              <></>
-            )}
-          </div>
+        {/* picture */}
+        <div className="flex flex-row justify-center items-center gap-10  h-72 px-3">
+          {!picture && (
+            <FormField
+              control={form.control}
+              name="picture"
+              render={({ field }) => (
+                <FormItem className="flex-1 flex flex-col  items-start">
+                  <FormLabel>Picture</FormLabel>
+                  <FormControl className="text-white/65 ">
+                    <input
+                      type="file"
+                      required
+                      accept=".jpg, .jpeg, .png"
+                      onChange={handleFileChange}
+                    />
+                  </FormControl>
+                  <FormDescription>Clinic's display picture.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
-          <FormField
-            control={form.control}
-            name="picture"
-            render={({ field }) => (
-              <FormItem className="flex-1 flex flex-col  items-start">
-                <FormLabel>Picture</FormLabel>
-                <FormControl className="text-white/65 ">
-                  <input
-                    type="file"
-                    required
-                    accept=".jpg, .jpeg, .png"
-                    onChange={handleFileChange}
-                  />
-                </FormControl>
-                <FormDescription>Clinic's display picture.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {picture && (
+            <div className="flex-1 h-auto flex flex-row justify-center items-center gap-10">
+              <div className="flex-1 w-full  items-start flex flex-col gap-3">
+                <FormLabel className="font-medium text-white ">
+                  Picture
+                </FormLabel>
+                <Image
+                  src={picture}
+                  alt="clinic image"
+                  width={100}
+                  height={100}
+                  className="object-cover h-auto w-full flex-1"
+                />
+              </div>
+              <div className=" flex-1 flex justify-center">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => {
+                    setFile(null);
+                    setPicture("");
+                  }}
+                >
+                  Change picture
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* province city */}
@@ -467,10 +511,10 @@ export function EditForm({ id, setOpen }: any) {
                 <FormLabel>Star Rating</FormLabel>
                 <FormControl>
                   <Input
-                    type="number"
-                    step="0.1"
-                    min="1"
-                    max="5"
+                    type="text"
+                    // step="0.1"
+                    // min="1"
+                    // max="5"
                     placeholder="Enter clinic rating (1-5)..."
                     {...field}
                   />

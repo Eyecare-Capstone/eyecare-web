@@ -47,3 +47,20 @@ export async function storeAdminCookies(adminData: string) {
     console.error("Error:", error);
   }
 }
+
+export async function filterUsersData(users: any, filter: string) {
+  try {
+    if (!users) {
+      throw new Error("Users data is empty.");
+    }
+
+    const filteredUsers = users.filter((user: any) => {
+      return user.status === filter;
+    });
+
+    return filteredUsers;
+  } catch (error) {
+    console.error("Error filtering users data:", error);
+    return [];
+  }
+}

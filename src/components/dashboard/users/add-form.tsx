@@ -25,6 +25,14 @@ import { deleteCookie, getToken } from "@/lib/actions";
 import { getStatusText } from "http-status-codes";
 import { storeTokenCookies } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const userSchema = z.object({
   username: z.string().min(2, {
@@ -34,6 +42,7 @@ const userSchema = z.object({
     message: "Invalid email format. Please enter a valid email address.",
   }),
   avatar: z.string().optional(),
+  status: z.string().optional(),
 });
 
 export function AddForm({ setOpen }: any) {
@@ -60,6 +69,7 @@ export function AddForm({ setOpen }: any) {
       username: "",
       email: "",
       avatar: "",
+      status: "",
     },
   });
 
@@ -103,7 +113,9 @@ export function AddForm({ setOpen }: any) {
         username: values.username,
         email: values.email,
         avatar: values.avatar,
+        status: values.status,
       };
+
       const res = await mutation.mutateAsync(data);
       await storeTokenCookies(res.token);
       setOpen(false);
@@ -134,55 +146,101 @@ export function AddForm({ setOpen }: any) {
   return (
     <Form {...form}>
       {mutation.isPending && <Spinner />}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-6">
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input type="text" placeholder="Enter username..." {...field} />
-              </FormControl>
-              <FormDescription>User's registered username.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="Enter email..." {...field} />
-              </FormControl>
-              <FormDescription>User's registered email.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="avatar"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>User avatar</FormLabel>
-              <FormControl>
-                <Input
-                  type="url"
-                  placeholder="Enter avatar url..."
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>User's avatar url.</FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="mt-3 space-y-6 w-full flex flex-col "
+      >
+        {/* username email */}
+        <div className="flex flex-row gap-3">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="Enter username..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>User's registered username.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" placeholder="Enter email..." {...field} />
+                </FormControl>
+                <FormDescription>User's registered email.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
-        <Button type="submit">Submit</Button>
+        {/* avatar status */}
+        <div className="flex flex-row gap-3 ">
+          <FormField
+            control={form.control}
+            name="avatar"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Avatar</FormLabel>
+                <FormControl>
+                  <Input
+                    type="url"
+                    placeholder="Enter avatar url..."
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>User's avatar url.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>Status</FormLabel>
+                <FormControl>
+                  <Select
+                    // {...field}
+                    defaultValue={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select status..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="deactive">Deactive</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormDescription>User's status.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <Button type="submit" className="mt-5">
+          Submit
+        </Button>
       </form>
     </Form>
   );

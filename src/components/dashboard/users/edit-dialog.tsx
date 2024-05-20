@@ -30,7 +30,7 @@ export function EditDialog({ id }: any) {
           <span className="text-xs">Edit user</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className=" sm:max-w-[425px]">
+      <DialogContent className=" sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Update user</DialogTitle>
           <DialogDescription>
