@@ -37,7 +37,7 @@ export default function ArticlesPage() {
     setType(
       typeParam === "nutritional"
         ? "nutritional"
-        : type === "educational"
+        : typeParam === "educational"
         ? "educational"
         : ""
     );
